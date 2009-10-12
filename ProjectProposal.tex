@@ -1,0 +1,17 @@
+\documentclass{article}
+\usepackage{listings}
+\title{ENGS 116 Project Proposal}
+\author{Gabe Stocco and Cory Cornelius}
+\begin{document}
+\maketitle
+\section{Introduction}
+The National Institute of Standards and Technology (NIST) is currently running a competition to choose a new national standard hash algorithm which will be called SHA-3.  Recently, a number of hash algorithms which are widely used have been successfully attacked very successfully - in particular the widely used MD5 hashing algorithm has been demonstrated to be quite insecure by Marc Stevens et al. by `predicting' the U.S. presidential election.\footnote{http://www.win.tue.nl/hashclash/Nostradamus/}  In addition, there have been recent serious attacks against SHA-1 as well.\\
+Hash functions are a critical tool in computer security.  A hash function allows for fingerprinting and verification of a piece of data by running a deterministic algorithm over a set of data with the property that if any slight changes are made to the data a very different hash will result.  MD5 is a very weak hash algorithm because it is not collision resistant - that is, it is very easy to create two arbitrary meaningful documents with the same hash.  In such a situation applications as varied as secure document downloading (using hashes as verification that you've received the right file) to online banking (hashes are used to verify security certificates for websites) can be compromised.\\
+\section{Approach}
+We are planning to choose a number of hash functions. Including at least one NIST competitor, implement them in OpenCL and see what kind of speeedup we van get by using general purpose graphics hardware programming.  We will be using a Mac Pro with an ATI Radeon HD 4870 for testing, as well as other machines.
+\section{Plan}
+By October 25th: Practice using OpenCL.  Learn API.  Select number and which specific hash functions to evaluate.
+By November 13th: Have results for at least two algorithms. Explore either attempting to find collisions for one of those algorithms, or using more algorithms.
+November 23th: Project due.
+\section{Literature}
+\end{document}
