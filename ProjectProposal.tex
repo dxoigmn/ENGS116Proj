@@ -11,17 +11,25 @@
 \maketitle
 
 \section{Introduction}
-The National Institute of Standards and Technology (NIST) is currently running a competition to choose a new national standard hash algorithm which will be called SHA-3.
-Recently, a number of hash algorithms which are widely used have been successfully attacked very successfully - in particular the widely used MD5 hashing algorithm has been demonstrated to be quite insecure \cite{Nostradamus}.
-In addition, there have been recent serious attacks against SHA-1 as well \cite{Sha1Collisions}.
-
 Hash functions are a critical tool in computer security.
 A hash function allows for fingerprinting and verification of a piece of data by running a deterministic algorithm over a set of data with the property that if any slight changes are made to the data a very different hash will result.
-MD5 is a very weak hash algorithm because it is not collision resistant - that is, it is very easy to create two arbitrary meaningful documents with the same hash.
-In such a situation applications as varied as secure document downloading (using hashes as verification that you've received the right file) to online banking (hashes are used to verify security certificates for websites) can be compromised.
 
+Recently, a number of popular and standard hash algorithms have been successfully attacked.
+The widely used MD5 hashing algorithm has been demonstrated to be quite insecure \cite{Nostradamus}.
+It has been shown to be cryptographically weak because it is not collision resistant and vulnerable to a kind of preimage attack--that is, it is very easy to create two arbitrary meaningful documents with the same hash.
+In such a situation applications as varied as secure document downloading (using hashes as verification that you've received the right file) to online banking (hashes are used to verify security certificates for websites) can be compromised.
+In addition, there have been recent serious attacks against one of the current standard hash algorithm, the Secure Hash Algorithm 1 (SHA-1) \cite{Sha1Collisions}.
+Because SHA-2 is structurally similar to SHA-1 cryptographers believe SHA-2 will fall just as SHA-1 has.
+
+As a result of these developments the National Institute of Standards and Technology (NIST) is currently running a competition to choose a new secure hash algorithm (SHA-3) \cite{Sha3Request}.
+NIST is running this competition similarly to how they ran the competition for the new Advanced Encryption Standard (AES).
+In particular, while a proposed algorithm might be stronger than every other proposed algorithm, the algorithm is useless if it takes a long time to execute.
+Thus there is a requirement, as there similarly was in the AES competition, for the authors of the algorithm to provide documentation on the computational efficiency of the algorithm.
+NIST will analyze ``each submission’s optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
+Since computational efficiency will be an important part of the decision in choosing SHA-3 some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.
 
 \section{Approach}
+
 We are planning to choose a number of hash functions.
 Including at least one NIST competitor, implement them in OpenCL and see what kind of speedup we van get by using general purpose graphics hardware programming.
 We will be using a Mac Pro with an ATI Radeon HD 4870 for testing, as well as other machines.
@@ -38,6 +46,7 @@ We will be using a Mac Pro with an ATI Radeon HD 4870 for testing, as well as ot
 \section{Literature}
 
 \begin{thebibliography}{9}
+  \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA–3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
   \bibitem{Nostradamus} Marc Stevens, Arjen K. Lenstra, Benne de Weger. ``Predicting the winner of the 2008 US Presidential Elections using a Sony PlayStation 3.'' November 30, 2007. Available at \url{http://www.win.tue.nl/hashclash/Nostradamus/}
   \bibitem{Sha1Collisions} Xaoyun Wang, Yiqun Lisa Yin, Hongbo Yu. ``Finding Collisions in the Full SHA-1.'' Lecture Notes in Computer Science, Vol. 3621 (November 2005), pp. 17-36
   \bibitem{Sha3Zoo} ``The SHA-3 Zoo.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/The_SHA-3_Zoo}
