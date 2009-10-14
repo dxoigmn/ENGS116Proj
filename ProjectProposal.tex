@@ -10,7 +10,7 @@
 
 \maketitle
 
-\section{Introduction}
+\section*{Introduction}
 Hash functions are a critical tool in computer security.
 A hash function allows for fingerprinting and verification of a piece of data by running a deterministic algorithm over a set of data with the property that if any slight changes are made to the data a very different hash will result.
 
@@ -28,22 +28,22 @@ Thus there is a requirement, as there similarly was in the AES competition, for 
 NIST will analyze ``each submission’s optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
 Since computational efficiency will be an important part of the decision in choosing SHA-3 some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.
 
-\section{Approach}
+\section*{Approach}
+Because we are not skilled cryptographers and others are already analyzing these algorithms \cite{Sha3Zoo}, we will instead explore the runtime speed of a subset of the round 2 SHA-3 candidates.
+We plan to evaluate the computational efficiency of the following SHA-3 candidates: Skein, CubeHash and Echo.
+We choose Skein and CubeHash primarily based on the popularity of the authors in the cryptographic community, and we choose Echo because it is based upon AES.
+While the each of these algorithms already have general purpose implementations we plan to implement them for execution on a GPU using the OpenCL and/or CUDA frameworks.
+There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
+Our hypothesis is that some of these algorithms will benefit from parallel execution while others may not.
+Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
+Our reference machine will be a Mac Pro with an ATI Radeon HD 4870.
 
-We are planning to choose a number of hash functions.
-Including at least one NIST competitor, implement them in OpenCL and see what kind of speedup we van get by using general purpose graphics hardware programming.
-We will be using a Mac Pro with an ATI Radeon HD 4870 for testing, as well as other machines.
-
-
-\section{Plan}
+\section*{Plan}
 \begin{description}
-  \item[October 25th] Learn and experiment with OpenCL APIs. Select number and which specific hash functions to evaluate.
-  \item[November 13th] Have results for at least two algorithms. Explore either attempting to find collisions for one of those algorithms, or using more algorithms.
-  \item[November 23th] Project due.
+  \item[Week 1] Learn and experiment with OpenCL/CUDA APIs.
+  \item[Week 2-3] Implement algorithms such that they comply with the test vectors as specified by the authors.
+  \item[Week 4] Evaluate the runtime of our implementations as compared to the reference implementations on a CPU. Prepare project presentation and report.
 \end{description}
-
-
-\section{Literature}
 
 \begin{thebibliography}{9}
   \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA–3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
@@ -52,6 +52,5 @@ We will be using a Mac Pro with an ATI Radeon HD 4870 for testing, as well as ot
   \bibitem{Sha3Zoo} ``The SHA-3 Zoo.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/The_SHA-3_Zoo}
   \bibitem{Sha3Hardware} ``SHA-3 Hardware Implementations.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/SHA-3_Hardware_Implementations}
 \end{thebibliography}
-
 
 \end{document}
