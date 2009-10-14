@@ -2,41 +2,40 @@
 
 \usepackage{listings}
 \usepackage{url}
+\usepackage[nohead]{geometry} 
 
 \title{ENGS 116 Project Proposal}
-\author{Gabe Stocco and Cory Cornelius}
-
+\author{Gabriel Stocco and Cory Cornelius}
+\date{14 October 2009}
 \begin{document}
 
 \maketitle
 
 \section*{Introduction}
-Hash functions are a critical tool in computer security.
-A hash function allows for fingerprinting and verification of a piece of data by running a deterministic algorithm over a set of data with the property that if any slight changes are made to the data a very different hash will result.
+Recently, a number of widely used and popular cryptographic hash functions have been successfully attacked.  In particular, the popular MD5 hash function has been demonstrated to be completely broken, allowing for crafted collisions to generate forged documents which then appear genuine.\cite{Nostradamus}
 
-Recently, a number of popular and standard hash algorithms have been successfully attacked.
-The widely used MD5 hashing algorithm has been demonstrated to be quite insecure \cite{Nostradamus}.
-It has been shown to be cryptographically weak because it is not collision resistant and vulnerable to a kind of preimage attack--that is, it is very easy to create two arbitrary meaningful documents with the same hash.
-In such a situation applications as varied as secure document downloading (using hashes as verification that you've received the right file) to online banking (hashes are used to verify security certificates for websites) can be compromised.
-In addition, there have been recent serious attacks against one of the current standard hash algorithm, the Secure Hash Algorithm 1 (SHA-1) \cite{Sha1Collisions}.
-Because SHA-2 is structurally similar to SHA-1 cryptographers believe SHA-2 will fall just as SHA-1 has.
+\begin{quotation}A cryptographic hash function is a deterministic procedure that takes an arbitrary block of data and returns a fixed-size bit string, the (cryptographic) hash value, such that an accidental or intentional change to the data will change the hash value.\cite{HashDef}
+\end{quotation}
 
-As a result of these developments the National Institute of Standards and Technology (NIST) is currently running a competition to choose a new secure hash algorithm (SHA-3) \cite{Sha3Request}.
-NIST is running this competition similarly to how they ran the competition for the new Advanced Encryption Standard (AES).
-In particular, while a proposed algorithm might be stronger than every other proposed algorithm, the algorithm is useless if it takes a long time to execute.
-Thus there is a requirement, as there similarly was in the AES competition, for the authors of the algorithm to provide documentation on the computational efficiency of the algorithm.
-NIST will analyze ``each submission’s optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
-Since computational efficiency will be an important part of the decision in choosing SHA-3 some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.
+The MD5 hashing algorithm has been found to be vulnerable to a kind of pre-image attack -- that is, it is possible to create custom documents which produce a known hash, greatly reducing the complexity of creating forged documents to easily realizable levels.
+In such a situation, applications as varied as secure document downloading (using hashes as verification that you've received the right file) and online banking (hashes are used to verify security certificates to for secure communication with websites) can be compromised.
+In addition, there have been recent serious attacks against one of the current national standard hash algorithms, the Secure Hash Algorithm 1 (SHA-1).\cite{Sha1Collisions}
+
+As a result of these developments the National Institute of Standards and Technology (NIST) is currently running a competition to choose a new secure hash algorithm called SHA-3.\cite{Sha3Request}
+NIST earlier ran a competition to choose the Advanced Encryption Standard (AES) to replace the widely used Data Encryption Standard.
+Among the requirements for the new SHA-3 standard is computational efficiency - NIST will analyze ``each submission’s optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.''\cite{Sha3Request}
+Since computational efficiency will be an important part of the decision in choosing SHA-3, some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.
+We see the greatest amount of potential for parallelism in Modern GPUs which can have hundreds of parallel processing elements.
 
 \section*{Approach}
 Because we are not skilled cryptographers and others are already analyzing these algorithms \cite{Sha3Zoo}, we will instead explore the runtime speed of a subset of the round 2 SHA-3 candidates.
 We plan to evaluate the computational efficiency of the following SHA-3 candidates: Skein, CubeHash and Echo.
-We choose Skein and CubeHash primarily based on the popularity of the authors in the cryptographic community, and we choose Echo because it is based upon AES.
-While the each of these algorithms already have general purpose implementations we plan to implement them for execution on a GPU using the OpenCL and/or CUDA frameworks.
-There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
-Our hypothesis is that some of these algorithms will benefit from parallel execution while others may not.
-Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
-Our reference machine will be a Mac Pro with an ATI Radeon HD 4870.
+Skein and CubeHash were chosen because of the popularity of the authors in the cryptographic community, and Echo was chosen because it is based on AES.
+While the each of these algorithms already have general purpose implementations, we will implement them for execution on a GPU using the OpenCL and/or CUDA frameworks.
+There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, but we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
+Our hypothesis is that some of these algorithms will benefit from parallel execution while others may not.  
+Thus, we will compare our runtime results on the GPU with runtime results on a CPU.
+Our reference machine will be a Mac Pro with an ATI Radeon HD 4870 and 8-cpu cores.
 
 \section*{Plan}
 \begin{description}
@@ -46,9 +45,10 @@ Our reference machine will be a Mac Pro with an ATI Radeon HD 4870.
 \end{description}
 
 \begin{thebibliography}{9}
-  \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA–3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
-  \bibitem{Nostradamus} Marc Stevens, Arjen K. Lenstra, Benne de Weger. ``Predicting the winner of the 2008 US Presidential Elections using a Sony PlayStation 3.'' November 30, 2007. Available at \url{http://www.win.tue.nl/hashclash/Nostradamus/}
+	\bibitem{Nostradamus} Marc Stevens, Arjen K. Lenstra, Benne de Weger. ``Predicting the winner of the 2008 US Presidential Elections using a Sony PlayStation 3.'' November 30, 2007. Available at \url{http://www.win.tue.nl/hashclash/Nostradamus/}
+	\bibitem{HashDef} ``Cryptographic Hash Function.'' Available at \url{http://en.wikipedia.org/wiki/Cryptographic_hash_function}
   \bibitem{Sha1Collisions} Xaoyun Wang, Yiqun Lisa Yin, Hongbo Yu. ``Finding Collisions in the Full SHA-1.'' Lecture Notes in Computer Science, Vol. 3621 (November 2005), pp. 17-36
+\bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA–3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
   \bibitem{Sha3Zoo} ``The SHA-3 Zoo.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/The_SHA-3_Zoo}
   \bibitem{Sha3Hardware} ``SHA-3 Hardware Implementations.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/SHA-3_Hardware_Implementations}
 \end{thebibliography}
