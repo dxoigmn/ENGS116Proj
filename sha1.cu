@@ -1,3 +1,9 @@
+#if defined(__APPLE__)
+#if _GLIBCXX_ATOMIC_BUILTINS == 1
+#undef _GLIBCXX_ATOMIC_BUILTINS
+#endif // _GLIBCXX_ATOMIC_BUILTINS
+#endif // __APPLE__
+
 #include <iostream>
 #include <stdio.h>
 #include <cutil.h>
