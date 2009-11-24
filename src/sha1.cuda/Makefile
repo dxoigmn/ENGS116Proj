@@ -1,4 +1,4 @@
-EXECUTABLE := sha1
+EXECUTABLE := sha1.cu
 CUFILES := sha1.cu
 
 BINDIR := ../../bin
