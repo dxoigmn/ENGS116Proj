@@ -110,10 +110,10 @@ __kernel void prepare(__global char *msg, __global const int *len, __global uint
 
     for (t = 0; t < 16; t++)
     {
-        W[W_pad + t] = ((uchar) msg[word_pad + t * 4]) << 24;
-        W[W_pad + t] |= ((uchar) msg[word_pad + t * 4 + 1]) << 16;
-        W[W_pad + t] |= ((uchar) msg[word_pad + t * 4 + 2]) << 8;
-        W[W_pad + t] |= (uchar) msg[word_pad + t * 4 + 3];
+        W[W_pad + t]  = (unsigned)((uchar) msg[word_pad + t * 4]) << 24;
+        W[W_pad + t] |= (unsigned)((uchar) msg[word_pad + t * 4 + 1]) << 16;
+        W[W_pad + t] |= (unsigned)((uchar) msg[word_pad + t * 4 + 2]) << 8;
+        W[W_pad + t] |= (unsigned)((uchar) msg[word_pad + t * 4 + 3]);
     }
 }
 __kernel void hexdigest(__global const uint *H, __global char *digest)

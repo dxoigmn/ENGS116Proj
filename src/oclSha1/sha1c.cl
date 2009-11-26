@@ -56,10 +56,10 @@ __kernel void sha1(__global char *msg, __global const int *len, __global char *d
     
     for (t = 0; t < 16; t++)
     {
-        W[t] = ((uchar) msg[word_pad + t * 4]) << 24;
-        W[t] |= ((uchar) msg[word_pad + t * 4 + 1]) << 16;
-        W[t] |= ((uchar) msg[word_pad + t * 4 + 2]) << 8;
-        W[t] |= (uchar) msg[word_pad + t * 4 + 3];
+        W[t]  = (unsigned)((uchar) msg[word_pad + t * 4]) << 24;
+        W[t] |= (unsigned)((uchar) msg[word_pad + t * 4 + 1]) << 16;
+        W[t] |= (unsigned)((uchar) msg[word_pad + t * 4 + 2]) << 8;
+        W[t] |= (unsigned)((uchar) msg[word_pad + t * 4 + 3]);
     }
     
     for(i = 16; i < 80; i++)
