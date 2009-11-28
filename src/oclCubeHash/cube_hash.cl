@@ -1,6 +1,10 @@
 #define CUBEHASH_ROUNDS 8
 #define CUBEHASH_BLOCKBYTES 1
-#define ROTATE(a,b) (((a) << (b)) | ((a) >> (32 - b)))
+
+unsigned int ROTATE(unsigned int a, int b)
+{
+  return (((a) << (b)) | ((a) >> (32 - b)));
+}
 
 static void transform(unsigned int *x)
 {
@@ -24,10 +28,22 @@ static void transform(unsigned int *x)
   }
 }
 
-int Init(int hashbitlen, unsigned int *pos, unsigned int *x)
+__kernel int Hash(__global unsigned int *_hashbitlen, __global const unsigned char *data, __global unsigned int *_databitlen, __global unsigned char *hashval)
 {
+  int gid = get_global_id(0);
+  unsigned int pos = 0;
+  unsigned int x[32];
   int i;
   int j;
+  int r;
+  unsigned int u;
+  unsigned int y[16];
+  unsigned int databitlen = *_databitlen;
+  unsigned int hashbitlen = *_hashbitlen;
+
+  /*
+  if (Init(hashbitlen, &pos, x) != 0) return 2;
+  */
 
   if (hashbitlen < 8) return 2;
   if (hashbitlen > 512) return 2;
@@ -37,41 +53,35 @@ int Init(int hashbitlen, unsigned int *pos, unsigned int *x)
   x[0] = hashbitlen / 8;
   x[1] = CUBEHASH_BLOCKBYTES;
   x[2] = CUBEHASH_ROUNDS;
-  for (i = 0;i < 10;++i) transform(x);
-  *pos = 0;
-  return 0;
-}
 
-int Update(unsigned int *pos, unsigned int *x, const unsigned char *data, unsigned long long databitlen)
-{
-  /* caller promises us that previous data had integral number of bytes */
-  /* so *pos is a multiple of 8 */
+  for (i = 0;i < 10;++i) transform(x);
+
+  /*
+  Update(&pos, x, data, databitlen);
+  */
 
   while (databitlen >= 8) {
     unsigned int u = *data;
-    u <<= 8 * ((*pos / 8) % 4);
-    x[*pos / 32] ^= u;
+    u <<= 8 * ((pos / 8) % 4);
+    x[pos / 32] ^= u;
     data += 1;
     databitlen -= 8;
-    *pos += 8;
-    if (*pos == 8 * CUBEHASH_BLOCKBYTES) {
+    pos += 8;
+    if (pos == 8 * CUBEHASH_BLOCKBYTES) {
       transform(x);
-      *pos = 0;
+      pos = 0;
     }
   }
   if (databitlen > 0) {
     unsigned int u = *data;
-    u <<= 8 * ((*pos / 8) % 4);
-    x[*pos / 32] ^= u;
-    *pos += databitlen;
+    u <<= 8 * ((pos / 8) % 4);
+    x[pos / 32] ^= u;
+    pos += databitlen;
   }
-  return 0;
-}
 
-int Final(int hashbitlen, int pos, unsigned int *x, unsigned char *hashval)
-{
-  int i;
-  unsigned int u;
+  /*
+  return Final(hashbitlen, pos, x, hashval);
+  */
 
   u = (128 >> (pos % 8));
   u <<= 8 * ((pos / 8) % 4);
@@ -82,15 +92,4 @@ int Final(int hashbitlen, int pos, unsigned int *x, unsigned char *hashval)
   for (i = 0;i < hashbitlen / 8;++i) hashval[i] = x[i / 4] >> (8 * (i % 4));
 
   return 0;
-}
-
-__kernel int Hash(__global int hashbitlen, __global const unsigned char *data, __global unsigned int databitlen, __global unsigned char *hashval)
-{
-  int gid = get_global_id(0);
-  unsigned int pos;
-  unsigned int x[32];
-
-  if (Init(hashbitlen, &pos, x) != 0) return 2;
-  Update(&pos, x, data, databitlen);
-  return Final(hashbitlen, pos, x, hashval);
 }

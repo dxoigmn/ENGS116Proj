@@ -5,7 +5,7 @@ int main(int argc, char **argv)
   cl_int ciErr;
 
   // Create Context
-  cl_context cxGPUContext = clCreateContextFromType(0, CL_DEVICE_TYPE_CPU, 0, 0, &ciErr);
+  cl_context cxGPUContext = clCreateContextFromType(0, CL_DEVICE_TYPE_GPU, 0, 0, &ciErr);
   oclCheckError(ciErr);
 
   // Get the list of GPU devices associated with context
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
   // Build the program
   ciErr = clBuildProgram(cpProgram, 0, 0, 0, 0, 0);
-  
+
   if (ciErr == CL_BUILD_PROGRAM_FAILURE) {
     cl_build_status build_status;
     ciErr = clGetProgramBuildInfo(cpProgram, cdDevices[0], CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &build_status, NULL);
@@ -73,12 +73,12 @@ int main(int argc, char **argv)
   oclCheckError(ciErr);
 
   // Allocate the OpenCL buffer memory objects for source and result on the device GMEM and set arguments for kernel
-  unsigned int hashbitlen = 64;
+  unsigned int hashbitlen = 512;
   unsigned char data[] = "abc";
-  unsigned int databitlen = strlen((char *)data) * 8;
+  unsigned int databitlen = 3 * 8;
   unsigned char hashval[hashbitlen / 8];
 
-  cl_mem cmHashBitLen = clCreateBuffer(cxGPUContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(databitlen), &hashbitlen, &ciErr);
+  cl_mem cmHashBitLen = clCreateBuffer(cxGPUContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(databitlen), &hashbitlen, &ciErr);
   oclCheckError(ciErr);
   ciErr = clSetKernelArg(ckKernel, 0, sizeof(cl_mem), (void*)&cmHashBitLen);
   oclCheckError(ciErr);
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
   oclCheckError(ciErr);
 
   // Launch kernel
-  size_t szGlobalWorkSize = 4;
+  size_t szGlobalWorkSize = 1;
   ciErr = clEnqueueNDRangeKernel(cqCommandQueue, ckKernel, 1, 0, &szGlobalWorkSize, 0, 0, 0, 0);
   oclCheckError(ciErr);
 
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
   ciErr = clEnqueueReadBuffer(cqCommandQueue, cmHashVal, CL_TRUE, 0, hashbitlen / 8, hashval, 0, 0, 0);
   oclCheckError(ciErr);
 
-  for (unsigned int i = 0; i < databitlen / 8; i++) {
+  for (unsigned int i = 0; i < hashbitlen / 8; i++) {
     printf("%02x", hashval[i]);
   }
   printf("\n");
