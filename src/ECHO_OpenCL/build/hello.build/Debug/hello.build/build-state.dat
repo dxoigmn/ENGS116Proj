@@ -1,0 +1,313 @@
+Thello
+v7
+r0
+t281080557.349461
+cCheck dependencies
+cCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o /Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp normal i386 c++ com.apple.compilers.gcc.4_2
+cLd /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello normal i386
+
+N/System/Library/Frameworks/OpenCL.framework/Headers/cl.h
+c000000004A3957E2000000000000ABCC
+t1245272034
+s43980
+
+N/System/Library/Frameworks/OpenCL.framework/Headers/cl_gl.h
+c000000004A3957E200000000000013B2
+t1245272034
+s5042
+
+N/System/Library/Frameworks/OpenCL.framework/Headers/opencl.h
+c000000004A3957E20000000000000244
+t1245272034
+s580
+
+N/System/Library/Frameworks/OpenCL.framework/OpenCL
+c000000004A5EC43700000000000545F0
+t1247724599
+s345584
+
+N/System/Library/Frameworks/OpenGL.framework/Headers/OpenGL.h
+c0000000049EE83DA0000000000001658
+t1240368090
+s5720
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/hello
+t1259364433
+s17164
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList
+c000000004B105F970000000000000071
+t1259364247
+s113
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+t1259364431
+s83988
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/echo.h
+c000000004B1021440000000000000578
+t1259348292
+s1400
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp
+c000000004B1060720000000000002CA7
+t1259364466
+s11431
+i"echo.h"
+i<iostream>
+i<fstream>
+i<stdlib.h>
+i<fcntl.h>
+i<stdio.h>
+i<stdlib.h>
+i<string.h>
+i<math.h>
+i<unistd.h>
+i<sys/types.h>
+i<sys/stat.h>
+i<OpenCL/opencl.h>
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello
+t1259387757
+s21792
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList
+c000000004B106083000000000000006F
+t1259364483
+s111
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+t1259387754
+s88628
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example/echo.h
+c000000004B1021440000000000000578
+t1259348292
+s1400
+
+N/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp
+c000000004B10BB6A0000000000002BE4
+t1259387754
+s11236
+i"echo.h"
+i<iostream>
+i<fstream>
+i<stdlib.h>
+i<fcntl.h>
+i<stdio.h>
+i<stdlib.h>
+i<string.h>
+i<math.h>
+i<unistd.h>
+i<sys/types.h>
+i<sys/stat.h>
+i<OpenCL/opencl.h>
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello
+t1259348359
+s17168
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList
+c000000004B0D55F80000000000000073
+t1259165176
+s115
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+t1259348356
+s84044
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/cppbindings.h
+c000000004B0D5D9D0000000000034E63
+t1259167133
+s216675
+i<windows.h>
+i<CL/cl.h>
+i<OpenCL/cl.h>
+i<OpenGL/opengl.h>
+i<OpenCL/cl_gl.h>
+i<CL/cl.h>
+i<GL/gl.h>
+i<CL/cl_gl.h>
+i<utility>
+i<vector>
+i<string>
+i<alloca.h>
+i<cstring>
+i<exception>
+i<string>
+i<vector>
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/echo.h
+c000000004B1021440000000000000578
+t1259348292
+s1400
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c
+c000000004B0D5C260000000000002A07
+t1259166758
+s10759
+i<cstdio>
+i<cstdlib>
+i<fstream>
+i<iostream>
+i<string>
+i<iterator>
+i<fcntl.h>
+i<stdio.h>
+i<stdlib.h>
+i<string.h>
+i<math.h>
+i<unistd.h>
+i<sys/types.h>
+i<sys/stat.h>
+i<OpenCL/opencl.h>
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp
+c000000004B1021840000000000002CAB
+t1259348356
+s11435
+i"echo.h"
+i<iostream>
+i<fstream>
+i<stdlib.h>
+i<fcntl.h>
+i<stdio.h>
+i<stdlib.h>
+i<string.h>
+i<math.h>
+i<unistd.h>
+i<sys/types.h>
+i<sys/stat.h>
+i<OpenCL/opencl.h>
+
+N/usr/include/alloca.h
+c000000004A5C14A60000000000000588
+t1247548582
+s1416
+
+N/usr/include/fcntl.h
+c000000004A5C14A600000000000003EA
+t1247548582
+s1002
+
+N/usr/include/math.h
+c000000004A5C14A000000000000004F1
+t1247548576
+s1265
+
+N/usr/include/stdio.h
+c000000004A5C14A70000000000004174
+t1247548583
+s16756
+
+N/usr/include/stdlib.h
+c000000004A5C14A70000000000002DF5
+t1247548583
+s11765
+
+N/usr/include/string.h
+c000000004A5C14A70000000000001731
+t1247548583
+s5937
+
+N/usr/include/sys/stat.h
+c000000004A73D6550000000000004A1D
+t1249105493
+s18973
+
+N/usr/include/sys/types.h
+c000000004A73D6550000000000002905
+t1249105493
+s10501
+
+N/usr/include/unistd.h
+c000000004A5C14A7000000000000563E
+t1247548583
+s22078
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies281080557#281080557#0(0"0(0#1#0"4300882208#0"0#
+
+CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp" normal i386 c++ com.apple.compilers.gcc.4_2
+s281057233.310635
+e281057233.313994
+r1
+xCompileC
+xbuild/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+x/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@66"Compile /Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp281057233#281057233#0(224"/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp: In function 'int main(int, char**)':/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp:133: warning: deprecated conversion from string constant to 'char*'1(22@53"Deprecated conversion from string constant to 'char*'281057233#97#127#0(6@58"/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp281057230#133#0#133#0#49"deprecated conversion from string constant to '*'0(0#0#58"/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp4300882208#914"    cd "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mfix-and-continue -fvisibility-inlines-hidden -gdwarf-2 "-I/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/hello.hmap" "-F/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug" "-I/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/include" -I../../inc "-I/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources/i386" "-I/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources" -c "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp" -o "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o"0#
+
+CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c" normal i386 c com.apple.compilers.gcc.4_2
+s280859560.483960
+e280859560.485691
+r0
+xCompileC
+xbuild/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+x/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c
+xnormal
+xi386
+xc
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@66"Compile /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859560#280859560#0(2163"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:53:18: error: cstdio: No such file or directory/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:54:19: error: cstdlib: No such file or directory/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:55:19: error: fstream: No such file or directory/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:56:20: error: iostream: No such file or directory/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:57:18: error: string: No such file or directory/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:58:20: error: iterator: No such file or directory/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c: In function 'main':/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:171: error: expected expression before ':' token/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:172: error: 'file' undeclared (first use in this function)/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:172: error: (Each undeclared identifier is reported only once/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:172: error: for each function it appears in.)/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:174: error: duplicate label 'std'/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:171: error: previous definition of 'std' was here/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:174: error: expected expression before ':' token/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:178: error: expected expression before ':' token/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:183: error: duplicate label 'cl'/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:178: error: previous definition of 'cl' was here/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:183: error: expected expression before ':' token/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:184: error: request for member 'build' in something not a structure or union/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c:184: error: 'devices' undeclared (first use in this function)17(4@33"Cstdio: No such file or directory280859560#0#107#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#53#0#53#0#28"*: No such file or directory0(4@34"Cstdlib: No such file or directory280859560#107#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#54#0#54#0#28"*: No such file or directory0(4@34"Fstream: No such file or directory280859560#215#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#55#0#55#0#28"*: No such file or directory0(4@35"Iostream: No such file or directory280859560#323#109#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#56#0#56#0#28"*: No such file or directory0(4@33"String: No such file or directory280859560#432#107#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#57#0#57#0#28"*: No such file or directory0(4@35"Iterator: No such file or directory280859560#539#109#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#58#0#58#0#28"*: No such file or directory0(4@36"Expected expression before ':' token280859560#728#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#171#0#171#0#19"expected * before *0(4@46"'file' undeclared (first use in this function)280859560#836#118#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#172#0#172#0#43"'*' undeclared (first use in this function)0(4@21"Duplicate label 'std'280859560#1180#93#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#174#0#174#0#0"0(13@37"Previous definition of 'std' was here280859560#1273#109#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#171#0#171#0#35"previous definition of '*' was here0(4@36"Expected expression before ':' token280859560#1382#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#174#0#174#0#19"expected * before *0(4@36"Expected expression before ':' token280859560#1490#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#178#0#178#0#19"expected * before *0(4@20"Duplicate label 'cl'280859560#1598#92#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#183#0#183#0#0"0(13@36"Previous definition of 'cl' was here280859560#1690#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#178#0#178#0#35"previous definition of '*' was here0(4@36"Expected expression before ':' token280859560#1798#108#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#183#0#183#0#19"expected * before *0(4@64"Request for member 'build' in something not a structure or union280859560#1906#136#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#184#0#184#0#0"0(4@49"'devices' undeclared (first use in this function)280859560#2042#121#0(6@58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280859558#184#0#184#0#43"'*' undeclared (first use in this function)0(0#0#58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c4300882208#898"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mfix-and-continue -gdwarf-2 "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/hello.hmap" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/include" -I../../inc "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources/i386" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources" -c "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c" -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o"1#
+
+CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp" normal i386 c++ com.apple.compilers.gcc.4_2
+s281041159.897477
+e281041159.898949
+r1
+xCompileC
+xbuild/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+x/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@68"Compile /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp281041159#281041159#0(228"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp: In function 'int main(int, char**)':/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp:133: warning: deprecated conversion from string constant to 'char*'1(22@53"Deprecated conversion from string constant to 'char*'281041159#99#129#0(6@60"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp281041156#133#0#133#0#49"deprecated conversion from string constant to '*'0(0#0#60"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp4300882208#930"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mfix-and-continue -fvisibility-inlines-hidden -gdwarf-2 "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/hello.hmap" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/include" -I../../inc "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources/i386" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources" -c "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp" -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o"0#
+
+CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o /Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp normal i386 c++ com.apple.compilers.gcc.4_2
+s281080557.325956
+e281080557.327413
+r1
+xCompileC
+xbuild/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+x/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@64"Compile /Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp281080557#281080557#0(705"/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp: In function 'int main(int, char**)':/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp:274: warning: cannot pass objects of non-POD type 'struct std::string' through '...'; call will abort at runtime/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp:274: warning: cannot pass objects of non-POD type 'struct std::string' through '...'; call will abort at runtime/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp:274: warning: format '%s' expects type 'char*', but argument 2 has type 'int'/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp:274: warning: format '%s' expects type 'char*', but argument 3 has type 'int'4(22@98"Cannot pass objects of non-POD type 'struct std::string' through '...'; call will abort at runtime281080557#95#170#0(6@56"/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp281080554#274#0#274#0#0"0(22@98"Cannot pass objects of non-POD type 'struct std::string' through '...'; call will abort at runtime281080557#265#170#0(6@56"/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp281080554#274#0#274#0#0"0(22@63"Format '%s' expects type 'char*', but argument 2 has type 'int'281080557#435#135#0(6@56"/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp281080554#274#0#274#0#56"format '*' expects type '*', but argument * has type '*'0(22@63"Format '%s' expects type 'char*', but argument 3 has type 'int'281080557#570#135#0(6@56"/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp281080554#274#0#274#0#56"format '*' expects type '*', but argument * has type '*'0(0#0#56"/Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp4300882208#882"    cd /Users/gabe/Desktop/OpenCL_Hello_World_Example    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mfix-and-continue -fvisibility-inlines-hidden -gdwarf-2 -I/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/hello.hmap -F/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug -I/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/include -I../../inc -I/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/DerivedSources/i386 -I/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/DerivedSources -c /Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp -o /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o0#
+
+CLd "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/hello" normal i386
+s281057233.314067
+e281057233.336404
+r1
+xLd
+x/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/hello
+xnormal
+xi386
+lSLF07#2@71"Link /Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/hello281057233#281057233#0(0"0(0#0#0"4300882208#528"    cd "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2"    /Developer/usr/bin/g++-4.2 -arch i386 "-L/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug" -L../../lib "-L/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/../lib" "-F/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug" -filelist "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList" -framework OpenCL -o "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/hello"0#
+
+CLd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello" normal i386
+s281041159.899022
+e281041159.921461
+r1
+xLd
+x/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello
+xnormal
+xi386
+lSLF07#2@73"Link /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello281041159#281041159#0(0"0(0#0#0"4300882208#540"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    /Developer/usr/bin/g++-4.2 -arch i386 "-L/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" -L../../lib "-L/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/../lib" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" -filelist "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList" -framework OpenCL -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello"0#
+
+CLd /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello normal i386
+s281080557.327482
+e281080557.349408
+r1
+xLd
+x/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello
+xnormal
+xi386
+lSLF07#2@69"Link /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello281080557#281080557#0(0"0(0#0#0"4300882208#504"    cd /Users/gabe/Desktop/OpenCL_Hello_World_Example    /Developer/usr/bin/g++-4.2 -arch i386 -L/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug -L../../lib -L/Users/gabe/Desktop/OpenCL_Hello_World_Example/../lib -F/Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug -filelist /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList -framework OpenCL -o /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello0#
+
