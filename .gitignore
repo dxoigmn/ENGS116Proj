@@ -3,3 +3,4 @@
 *.pdf
 obj/
 bin/
+SdkLogfileOpenCL.txt
