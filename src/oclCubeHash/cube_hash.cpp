@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     size_t build_log_size;
     ciErr = clGetProgramBuildInfo(cpProgram, cdDevices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &build_log_size);
     oclCheckError(ciErr);
-    
+
     char *build_log = (char *)malloc(build_log_size + 1);
     clGetProgramBuildInfo(cpProgram, cdDevices[0], CL_PROGRAM_BUILD_LOG, build_log_size, build_log, NULL);
     oclCheckError(ciErr);
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
     free(build_log);
   }
-  
+
   oclCheckError(ciErr);
 
 /*

@@ -20,7 +20,7 @@ int main(int argc, char **argv)
   oclCheckError(ciErr);
 
   // Create a command-queue
-  cl_command_queue cqCommandQueue = clCreateCommandQueue(cxGPUContext, cdDevices[0], 0, &ciErr);
+  cl_command_queue cqCommandQueue = clCreateCommandQueue(cxGPUContext, cdDevices[0], CL_QUEUE_PROFILING_ENABLE, &ciErr);
   oclCheckError(ciErr);
 
   // Read the OpenCL kernel in from source file
@@ -87,8 +87,24 @@ int main(int argc, char **argv)
 
   // Launch kernel
   size_t szGlobalWorkSize = 4;
-  ciErr = clEnqueueNDRangeKernel(cqCommandQueue, ckKernel, 1, 0, &szGlobalWorkSize, 0, 0, 0, 0);
+  cl_event event;
+  ciErr = clEnqueueNDRangeKernel(cqCommandQueue, ckKernel, 1, 0, &szGlobalWorkSize, 0, 0, 0, &event);
   oclCheckError(ciErr);
+
+  // Wait until the kernel finishes
+  ciErr = clFinish(cqCommandQueue);
+  oclCheckError(ciErr);
+
+  // Output timing information
+  cl_ulong start = 0;
+  ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(start), &start, NULL);
+  oclCheckError(ciErr);
+
+  cl_ulong end = 0;
+  ciErr = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(end), &end, NULL);
+  oclCheckError(ciErr);
+
+  printf("%llu ns\n", end - start);
 
   // Synchronous/blocking read of results, and check accumulated errors
   ciErr = clEnqueueReadBuffer(cqCommandQueue, cmDigest, CL_TRUE, 0, 20, digest, 0, 0, 0);
