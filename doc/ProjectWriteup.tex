@@ -1,0 +1,63 @@
+\documentclass{article}
+ 
+\usepackage{listings}
+\usepackage{url}
+ 
+\title{ENGS 116 Project Proposal}
+\author{Gabe Stocco and Cory Cornelius}
+ 
+\begin{document}
+ 
+\maketitle
+ 
+\section*{Introduction}
+Hash functions are a critical tool in computer security.
+A hash function allows for fingerprinting and verification of a piece of data by running a deterministic algorithm over a set of data with the property that if any slight changes are made to the data a very different hash will result.
+ 
+Recently, a number of popular and standard hash algorithms have been successfully attacked.
+The widely used MD5 hashing algorithm has been demonstrated to be quite insecure \cite{Nostradamus}.
+It has been shown to be cryptographically weak because it is not collision resistant and vulnerable to a kind of preimage attack--that is, it is very easy to create two arbitrary meaningful documents with the same hash.
+In such a situation applications as varied as secure document downloading (using hashes as verification that you've received the right file) to online banking (hashes are used to verify security certificates for websites) can be compromised.
+In addition, there have been recent serious attacks against one of the current standard hash algorithm, the Secure Hash Algorithm 1 (SHA-1) \cite{Sha1Collisions}.
+Because SHA-2 is structurally similar to SHA-1 cryptographers believe SHA-2 will fall just as SHA-1 has.
+ 
+As a result of these developments the National Institute of Standards and Technology (NIST) is currently running a competition to choose a new secure hash algorithm (SHA-3) \cite{Sha3Request}.
+NIST is running this competition similarly to how they ran the competition for the new Advanced Encryption Standard (AES).
+In particular, while a proposed algorithm might be stronger than every other proposed algorithm, the algorithm is useless if it takes a long time to execute.
+Thus there is a requirement, as there similarly was in the AES competition, for the authors of the algorithm to provide documentation on the computational efficiency of the algorithm.
+NIST will analyze ``each submission’s optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
+Since computational efficiency will be an important part of the decision in choosing SHA-3 some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.
+
+\section*{Algorithms}
+We chose to implement SHA1 in OpenCL as well as a number of NIST hash competitors.
+\subsection*{ECHO}
+ECHO was chosen because it is largely based on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard.  ECHO provides a number of inherent advantages due to its design based on the AES block cipher.  In particular, upcoming Intel chips starting with the Nehalem/Westmere core will have built in AES hardware support - allowing for three times faster operation.\cite{Westmere}  Additionally, ECHO should be as secure as AES, because it has no other arbitrary number other than those used in the S-boxes for AES.
+ECHO 
+
+\section*{Approach}
+Because we are not skilled cryptographers and others are already analyzing these algorithms \cite{Sha3Zoo}, we will instead explore the runtime speed of a subset of the round 2 SHA-3 candidates.
+We plan to evaluate the computational efficiency of the following SHA-3 candidates: Skein, CubeHash and Echo.
+We choose Skein and CubeHash primarily based on the popularity of the authors in the cryptographic community, and we choose Echo because it is based upon AES.
+While the each of these algorithms already have general purpose implementations we plan to implement them for execution on a GPU using the OpenCL and/or CUDA frameworks.
+There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
+Our hypothesis is that some of these algorithms will benefit from parallel execution while others may not.
+Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
+Our reference machine will be a Mac Pro with an ATI Radeon HD 4870.
+ 
+\section*{Plan}
+\begin{description}
+  \item[Week 1] Learn and experiment with OpenCL/CUDA APIs.
+  \item[Week 2-3] Implement algorithms such that they comply with the test vectors as specified by the authors.
+  \item[Week 4] Evaluate the runtime of our implementations as compared to the reference implementations on a CPU. Prepare project presentation and report.
+\end{description}
+ 
+\begin{thebibliography}{9}
+  \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA–3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
+  \bibitem{Nostradamus} Marc Stevens, Arjen K. Lenstra, Benne de Weger. ``Predicting the winner of the 2008 US Presidential Elections using a Sony PlayStation 3.'' November 30, 2007. Available at \url{http://www.win.tue.nl/hashclash/Nostradamus/}
+  \bibitem{Sha1Collisions} Xaoyun Wang, Yiqun Lisa Yin, Hongbo Yu. ``Finding Collisions in the Full SHA-1.'' Lecture Notes in Computer Science, Vol. 3621 (November 2005), pp. 17-36
+  \bibitem{Sha3Zoo} ``The SHA-3 Zoo.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/The_SHA-3_Zoo}
+  \bibitem{Sha3Hardware} ``SHA-3 Hardware Implementations.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/SHA-3_Hardware_Implementations}
+\bibitem{Westmere} ``Intel Nehalem (microarchitecture).'' Available at \url{http://en.wikipedia.org/wiki/Intel_Westmere}
+ \end{thebibliography}
+
+\end{document}
