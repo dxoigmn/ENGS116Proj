@@ -37,36 +37,51 @@ int main(int argc, char **argv)
 
   // Build the program
   ciErr = clBuildProgram(cpProgram, 0, 0, 0, 0, 0);
-  oclCheckError(ciErr);
 
-  // Allocate the OpenCL buffer memory objects for source and result on the device GMEM
-  char *message = (char *)malloc(64);
-  unsigned int messageLength = 3;
-  unsigned char *digest = (unsigned char *)malloc(41);
+  if (ciErr == CL_BUILD_PROGRAM_FAILURE) {
+    cl_build_status build_status;
+    ciErr = clGetProgramBuildInfo(cpProgram, cdDevices[0], CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &build_status, NULL);
+    oclCheckError(ciErr);
 
-  strcpy(message, "abc");
-  memset(digest, 0, 41);
+    size_t build_log_size;
+    ciErr = clGetProgramBuildInfo(cpProgram, cdDevices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &build_log_size);
+    oclCheckError(ciErr);
 
-  cl_mem cmMessage = clCreateBuffer(cxGPUContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 64, message, &ciErr);
-  oclCheckError(ciErr);
+    char *build_log = (char *)malloc(build_log_size + 1);
+    clGetProgramBuildInfo(cpProgram, cdDevices[0], CL_PROGRAM_BUILD_LOG, build_log_size, build_log, NULL);
+    oclCheckError(ciErr);
 
-  cl_mem cmLength = clCreateBuffer(cxGPUContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, 4, &messageLength, &ciErr);
-  oclCheckError(ciErr);
+    build_log[build_log_size] = '\0';
 
-  cl_mem cmDigest = clCreateBuffer(cxGPUContext, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, 41, digest, &ciErr);
+    fprintf(stderr, "BUILD LOG:\n");
+    fprintf(stderr, "%s\n", build_log);
+
+    free(build_log);
+  }
+
   oclCheckError(ciErr);
 
   // Create the "prepare" kernel
   cl_kernel ckKernel = clCreateKernel(cpProgram, "sha1", &ciErr);
   oclCheckError(ciErr);
 
-  // Set the Argument values
+  // Allocate the OpenCL buffer memory objects for source and result on the device GMEM and set the argument values
+  char message[] = "abc";
+  unsigned int messageLength = 3;
+  unsigned char digest[20];
+
+  cl_mem cmMessage = clCreateBuffer(cxGPUContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, messageLength, message, &ciErr);
+  oclCheckError(ciErr);
   ciErr = clSetKernelArg(ckKernel, 0, sizeof(cl_mem), (void*)&cmMessage);
   oclCheckError(ciErr);
 
+  cl_mem cmLength = clCreateBuffer(cxGPUContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(messageLength), &messageLength, &ciErr);
+  oclCheckError(ciErr);
   ciErr = clSetKernelArg(ckKernel, 1, sizeof(cl_mem), (void*)&cmLength);
   oclCheckError(ciErr);
 
+  cl_mem cmDigest = clCreateBuffer(cxGPUContext, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, 20, digest, &ciErr);
+  oclCheckError(ciErr);
   ciErr = clSetKernelArg(ckKernel, 2, sizeof(cl_mem), (void*)&cmDigest);
   oclCheckError(ciErr);
 
@@ -76,10 +91,13 @@ int main(int argc, char **argv)
   oclCheckError(ciErr);
 
   // Synchronous/blocking read of results, and check accumulated errors
-  ciErr = clEnqueueReadBuffer(cqCommandQueue, cmDigest, CL_TRUE, 0, 40, digest, 0, 0, 0);
+  ciErr = clEnqueueReadBuffer(cqCommandQueue, cmDigest, CL_TRUE, 0, 20, digest, 0, 0, 0);
   oclCheckError(ciErr);
 
-  fprintf(stderr, "digest: %s\n", digest);
+  for (int i = 0; i < 20 ; i++) {
+    printf("%02x", digest[i]);
+  }
+  printf("\n");
 
   if (cdDevices)      free(cdDevices);
   if (cPathAndName)   free(cPathAndName);
@@ -91,8 +109,6 @@ int main(int argc, char **argv)
   if (cmMessage)      clReleaseMemObject(cmMessage);
   if (cmLength)       clReleaseMemObject(cmLength);
   if (cmDigest)       clReleaseMemObject(cmDigest);
-  if (message)        free(message);
-  if (digest)         free(digest);
 
   return 0;
 }

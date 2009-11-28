@@ -37,12 +37,11 @@ void memset_user(__global char *s, int c, int size)
 }
 __kernel void sha1(__global char *msg, __global const int *len, __global char *digest)
 {
-    int t, word_pad, gid, i, j, gid41;
-    uint W[80], A[5], temp, number;
-    char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    int t, word_pad, gid, i, j, gid20;
+    uint W[80], A[5], temp;
     
     gid = get_global_id(0);
-    gid41 = gid * 41;
+    gid20 = gid * 20;
     word_pad = gid * 64;
     memset_user(&msg[word_pad + len[gid]], 0, 64 - len[gid]);
     msg[word_pad + len[gid]] = (char) 0x80;
@@ -106,6 +105,7 @@ __kernel void sha1(__global char *msg, __global const int *len, __global char *d
         A[1] = A[0];
         A[0] = temp;
     }
+
     A[0] += H1;
     A[1] += H2;
     A[2] += H3;
@@ -114,12 +114,11 @@ __kernel void sha1(__global char *msg, __global const int *len, __global char *d
 
     for(j = 0; j < 5; j++)
     {
-        number = A[j];
-        for(i = 0; i < 8; i++)
+        unsigned char *A2 = &A[j];
+
+        for(i = 0; i < 4; i++)
         {
-            digest[gid41 + j*8 + 7-i] = hexChars[number%16];
-            number /= 16;
+            digest[gid20 + j*4 + 3-i] = A2[i];
         }
     }
-    digest[gid41 + 40] = '\0';
 }
