@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 src   = open('sha1c.cl', 'r').read()
-ctx   = cl.Context()
+ctx   = cl.Context(dev_type=cl.device_type.CPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 
