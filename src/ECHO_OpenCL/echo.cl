@@ -107,9 +107,6 @@ void Compress(hashState *state);
 void Backup(hashState *state);
 void BigFinal(hashState *state);
 void Pad(hashState *state);
-void Push(hashState *state, word8 a);
-word8 Pop(hashState *state);
-word8 * Stack(hashState *state);
 void SubByte(word8 a[4][4]);
 void ShiftRows(word8 a[4][4]);
 void MixColumns(word8 a[4][4]);
@@ -251,7 +248,8 @@ __kernel int Hash(
 		while(databitlen)
 		{
 			//read data byte
-			Push(state, *data++);
+			//Push(state, *data++);
+			*state->Addresses[state->index++]= *data++;
 			if (databitlen>=8)
 			{
 				databitlen -=8;
@@ -301,12 +299,93 @@ __kernel int Hash(
 			return FAIL;
 		}
 
-		Pad(state);
+		// Pad(state);
+		// void Pad(hashState *state)
+		{
+			int nFinalPadding = 0;
+			word8 MASK_AND[8] = 
+			{
+				// =  - (1<<(7-i))
+				0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0xFF
+			};
+			word8 MASK_OR[8] = 
+			{
+				// = 1 << (7-i)
+				0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
+			};
+			//first bit of padding
+			* state->Addresses[state->index] &= MASK_AND[state->bit_index];
+			* state->Addresses[state->index] |= MASK_OR[state->bit_index];
+
+			if ((state->index == state->cv_size/8) && (state->bit_index == 0))
+			{
+				//no message bit in this block
+				nFinalPadding = 1;
+			}
+			state->index ++;
+			if (state->index > 256 - 16 - 2)
+			{
+				//padding with "0"
+				while (state->index < 256)
+				{
+					//Push(state, 0);
+			*state->Addresses[state->index++]= 0;
+				}
+				Compress(state);
+				state->index = state->cv_size/8;
+				//no message bit in next block
+				nFinalPadding = 1;
+			}
+			//padding last block
+			while (state->index < 256 - 16 - 2)
+			{
+				//Push(state, 0);
+			*state->Addresses[state->index++]= 0;
+			}
+			//HSIZE (2 bytes)
+			//Push(state, state->hashbitlen);
+			*state->Addresses[state->index++]= state->hashbitlen;
+			//Push(state, state->hashbitlen >> 8);
+			*state->Addresses[state->index++]= state->hashbitlen >> 8;
+			//message length (8 bytes)
+			//Push(state, state->messlenlo >> 0);
+			*state->Addresses[state->index++]= state->messlenlo >> 0;
+			//Push(state, state->messlenlo >> 8);
+			*state->Addresses[state->index++]= state->messlenlo >> 8;
+			//Push(state, state->messlenlo >> 16);
+			*state->Addresses[state->index++]= state->messlenlo >> 16;
+			//Push(state, state->messlenlo >> 24);
+			*state->Addresses[state->index++]= state->messlenlo >> 24;
+			//Push(state, state->messlenhi >> 0);
+			*state->Addresses[state->index++]= state->messlenhi >> 0;
+			//Push(state, state->messlenhi >> 8);
+			*state->Addresses[state->index++]= state->messlenhi >> 8;
+			//Push(state, state->messlenhi >> 16);
+			*state->Addresses[state->index++]= state->messlenhi >> 16;
+			//Push(state, state->messlenhi >> 24);
+			*state->Addresses[state->index++]= state->messlenhi >> 24;
+			//High 64 bits of counter set to 0
+			while (state->index < 256)
+			{
+				//Push(state, 0);
+			*state->Addresses[state->index++]= 0;
+			}
+			if (nFinalPadding)
+			{
+				state->messlenhi = 0;
+				state->messlenlo = 0;
+			}
+			Compress(state);
+		}
 		/* output truncated hash value */
 		state->index = 0;
 		for(i=0; i<((state->hashbitlen + 7)/8); i++)
 		{
-			hashval[i] = Pop(state);
+			// hashval[i] =  Pop(state);
+			// word8 Pop(hashState *state)
+			{
+				hashval[i] = * state->Addresses[state->index++];
+			}
 		}
 		//last byte truncation
 		hashval[i-1] &= MASK_AND[state->hashbitlen % 8];
@@ -314,7 +393,8 @@ __kernel int Hash(
 		state->index = 0;
 		for (i=0; i<256; i++)
 		{
-			Push(state, 0);
+			//Push(state, 0);
+			*state->Addresses[state->index++]= 0;
 		}
 		state->Computed = 1;
 		S= SUCCESS;
@@ -401,23 +481,6 @@ void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d)
 	*b = bb;
 	*c = cc;
 	*d = dd;
-}
-
-#ifdef TRACE
-void SetLevelTrace(int level)
-{
-	level_trace = level;
-}
-
-#endif
-void Push(hashState *state, word8 a)
-{
-	* state->Addresses[state->index++] = a;
-}
-
-word8 Pop(hashState *state)
-{
-	return * state->Addresses[state->index++];
 }
 
 word8* Stack(hashState *state)
@@ -591,72 +654,6 @@ void BigFinal(hashState *state)
 			}
 		}
 	}
-}
-
-
-void Pad(hashState *state)
-{
-	int nFinalPadding = 0;
-	word8 MASK_AND[8] = 
-	{
-		// =  - (1<<(7-i))
-		0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0xFF
-	};
-	word8 MASK_OR[8] = 
-	{
-		// = 1 << (7-i)
-		0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
-	};
-	//first bit of padding
-	* Stack(state) &= MASK_AND[state->bit_index];
-	* Stack(state) |= MASK_OR[state->bit_index];
-	
-	if ((state->index == state->cv_size/8) && (state->bit_index == 0))
-	{
-		//no message bit in this block
-		nFinalPadding = 1;
-	}
-	state->index ++;
-	if (state->index > 256 - 16 - 2)
-	{
-		//padding with "0"
-		while (state->index < 256)
-		{
-			Push(state, 0);
-		}
-		Compress(state);
-		state->index = state->cv_size/8;
-		//no message bit in next block
-		nFinalPadding = 1;
-	}
-	//padding last block
-	while (state->index < 256 - 16 - 2)
-	{
-		Push(state, 0);
-	}
-	//HSIZE (2 bytes)
-	Push(state, state->hashbitlen);
-	Push(state, state->hashbitlen >> 8);
-	//message length (8 bytes)
-	Push(state, state->messlenlo >> 0);
-	Push(state, state->messlenlo >> 8);
-	Push(state, state->messlenlo >> 16);
-	Push(state, state->messlenlo >> 24);
-	Push(state, state->messlenhi >> 0);
-	Push(state, state->messlenhi >> 8);
-	Push(state, state->messlenhi >> 16);
-	Push(state, state->messlenhi >> 24);
-	//High 64 bits of counter set to 0
-	while (state->index < 256)
-	{
-		Push(state, 0);
-	}
-	if (nFinalPadding)
-	{
-		state->messlenhi = 0;
-		state->messlenlo = 0;
-	}
-	Compress(state);
 }
 
 

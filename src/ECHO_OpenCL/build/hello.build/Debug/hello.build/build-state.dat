@@ -1,10 +1,10 @@
 Thello
 v7
 r0
-t281080557.349461
+t281209891.145249
 cCheck dependencies
-cCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o /Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp normal i386 c++ com.apple.compilers.gcc.4_2
-cLd /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello normal i386
+cCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o /Users/gabe/116proj/src/ECHO_OpenCL/hello.cpp normal i386 c++ com.apple.compilers.gcc.4_2
+cLd /Users/gabe/116proj/src/ECHO_OpenCL/build/Debug/hello normal i386
 
 N/System/Library/Frameworks/OpenCL.framework/Headers/cl.h
 c000000004A3957E2000000000000ABCC
@@ -22,14 +22,50 @@ t1245272034
 s580
 
 N/System/Library/Frameworks/OpenCL.framework/OpenCL
-c000000004A5EC43700000000000545F0
+c000000004A5EC43700000000000523E0
 t1247724599
-s345584
+s336864
 
 N/System/Library/Frameworks/OpenGL.framework/Headers/OpenGL.h
 c0000000049EE83DA0000000000001658
 t1240368090
 s5720
+
+N/Users/gabe/116proj/src/ECHO_OpenCL/build/Debug/hello
+t1259517091
+s21780
+
+N/Users/gabe/116proj/src/ECHO_OpenCL/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList
+c000000004B12B4A20000000000000064
+t1259517090
+s100
+
+N/Users/gabe/116proj/src/ECHO_OpenCL/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+t1259461091
+s88628
+
+N/Users/gabe/116proj/src/ECHO_OpenCL/echo.h
+c000000004B11D9E30000000000000578
+t1259461091
+s1400
+
+N/Users/gabe/116proj/src/ECHO_OpenCL/hello.cpp
+c000000004B11D9E30000000000002BE4
+t1259461091
+s11236
+i"echo.h"
+i<iostream>
+i<fstream>
+i<stdlib.h>
+i<fcntl.h>
+i<stdio.h>
+i<stdlib.h>
+i<string.h>
+i<math.h>
+i<unistd.h>
+i<sys/types.h>
+i<sys/stat.h>
+i<OpenCL/opencl.h>
 
 N/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/build/Debug/hello
 t1259364433
@@ -227,7 +263,7 @@ s22078
 
 CCheck dependencies
 r0
-lSLF07#2@18"Check dependencies281080557#281080557#0(0"0(0#1#0"4300882208#0"0#
+lSLF07#2@18"Check dependencies281209888#281209890#0(0"0(0#1#0"7019216464824387584#0"0#
 
 CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o "/Users/gabe/Desktop/OpenCL_Hello_World_Example 2/hello.cpp" normal i386 c++ com.apple.compilers.gcc.4_2
 s281057233.310635
@@ -268,6 +304,9 @@ xc++
 xcom.apple.compilers.gcc.4_2
 lSLF07#2@68"Compile /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp281041159#281041159#0(228"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp: In function 'int main(int, char**)':/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp:133: warning: deprecated conversion from string constant to 'char*'1(22@53"Deprecated conversion from string constant to 'char*'281041159#99#129#0(6@60"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp281041156#133#0#133#0#49"deprecated conversion from string constant to '*'0(0#0#60"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp4300882208#930"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c++ -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mfix-and-continue -fvisibility-inlines-hidden -gdwarf-2 "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/hello.hmap" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/include" -I../../inc "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources/i386" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources" -c "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.cpp" -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o"0#
 
+CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o /Users/gabe/116proj/src/ECHO_OpenCL/hello.cpp normal i386 c++ com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o /Users/gabe/Desktop/OpenCL_Hello_World_Example/hello.cpp normal i386 c++ com.apple.compilers.gcc.4_2
 s281080557.325956
 e281080557.327413
@@ -300,6 +339,16 @@ x/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello
 xnormal
 xi386
 lSLF07#2@73"Link /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello281041159#281041159#0(0"0(0#0#0"4300882208#540"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    /Developer/usr/bin/g++-4.2 -arch i386 "-L/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" -L../../lib "-L/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/../lib" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" -filelist "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList" -framework OpenCL -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello"0#
+
+CLd /Users/gabe/116proj/src/ECHO_OpenCL/build/Debug/hello normal i386
+s281209890.069931
+e281209891.145039
+r1
+xLd
+x/Users/gabe/116proj/src/ECHO_OpenCL/build/Debug/hello
+xnormal
+xi386
+lSLF07#2@58"Link /Users/gabe/116proj/src/ECHO_OpenCL/build/Debug/hello281209890#281209891#0(0"0(0#0#0"32369824192135280#438"    cd /Users/gabe/116proj/src/ECHO_OpenCL    /Developer/usr/bin/g++-4.2 -arch i386 -L/Users/gabe/116proj/src/ECHO_OpenCL/build/Debug -L../../lib -L/Users/gabe/116proj/src/ECHO_OpenCL/../lib -F/Users/gabe/116proj/src/ECHO_OpenCL/build/Debug -filelist /Users/gabe/116proj/src/ECHO_OpenCL/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList -framework OpenCL -o /Users/gabe/116proj/src/ECHO_OpenCL/build/Debug/hello0#
 
 CLd /Users/gabe/Desktop/OpenCL_Hello_World_Example/build/Debug/hello normal i386
 s281080557.327482
