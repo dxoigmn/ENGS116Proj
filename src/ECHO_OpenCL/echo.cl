@@ -31,9 +31,9 @@ typedef struct {
 } hashState;
 
 
-HashReturn Final(hashState *state, BitSequence *hashval);
+word8 mul(word8 a, word8 b);
+void AddRoundKey(word8 a[4][4], word8 k[4][4]);
 
-void SetLevelTrace(int level);
 HashReturn SetSalt(hashState *state, const BitSequence salt[16]);
 
 
@@ -96,6 +96,24 @@ word8 S[256] = {
 	140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,  22, 
 };
 
+word8 Sbox[256] = {
+	99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171, 118, 
+	202, 130, 201, 125, 250,  89,  71, 240, 173, 212, 162, 175, 156, 164, 114, 192, 
+	183, 253, 147,  38,  54,  63, 247, 204,  52, 165, 229, 241, 113, 216,  49,  21, 
+	4, 199,  35, 195,  24, 150,   5, 154,   7,  18, 128, 226, 235,  39, 178, 117, 
+	9, 131,  44,  26,  27, 110,  90, 160,  82,  59, 214, 179,  41, 227,  47, 132, 
+	83, 209,   0, 237,  32, 252, 177,  91, 106, 203, 190,  57,  74,  76,  88, 207, 
+	208, 239, 170, 251,  67,  77,  51, 133,  69, 249,   2, 127,  80,  60, 159, 168, 
+	81, 163,  64, 143, 146, 157,  56, 245, 188, 182, 218,  33,  16, 255, 243, 210, 
+	205,  12,  19, 236,  95, 151,  68,  23, 196, 167, 126,  61, 100,  93,  25, 115, 
+	96, 129,  79, 220,  34,  42, 144, 136,  70, 238, 184,  20, 222,  94,  11, 219, 
+	224,  50,  58,  10,  73,   6,  36,  92, 194, 211, 172,  98, 145, 149, 228, 121, 
+	231, 200,  55, 109, 141, 213,  78, 169, 108,  86, 244, 234, 101, 122, 174,   8, 
+	186, 120,  37,  46,  28, 166, 180, 198, 232, 221, 116,  31,  75, 189, 139, 138, 
+	112,  62, 181, 102,  72,   3, 246,  14,  97,  53,  87, 185, 134, 193,  29, 158, 
+	225, 248, 152,  17, 105, 217, 142, 148, 155,  30, 135, 233, 206,  85,  40, 223, 
+	140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,  22, 
+};
 
 
 
@@ -103,8 +121,6 @@ word8 S[256] = {
 void BigSubWords(hashState *state);
 void BigShiftRows(hashState *state);
 void BigMixColumns(hashState *state);
-void Compress(hashState *state);
-void Backup(hashState *state);
 void BigFinal(hashState *state);
 void Pad(hashState *state);
 void SubByte(word8 a[4][4]);
@@ -112,6 +128,7 @@ void ShiftRows(word8 a[4][4]);
 void MixColumns(word8 a[4][4]);
 void aes(word8 a[4][4], word8 k[4][4]);
 void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d);
+
 
 __kernel int Hash(                                                       
 					__global unsigned int *hashbitlen_in,
@@ -272,7 +289,290 @@ __kernel int Hash(
 			if (state->index == 256)
 			{
 				//block completed
-				Compress(state);
+				// Compress(state);
+				// void Compress(hashState *state)
+				{
+					int i;
+					// Backup(state);
+					// void Backup(hashState *state)
+					{
+						int i,j,k,l;
+						for(i=0; i<4; i++)
+						{
+							for(j=0; j<4; j++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(l=0; l<4; l++)
+									{
+										state->tab_backup[i][j][k][l] = state->tab[i][j][k][l];
+									}
+								}
+							}
+						}
+					}
+					state->counter_hi = state->messlenhi;
+					state->counter_lo = state->messlenlo;
+					for (i=0; i<state->rounds; i++)
+					{
+						// BigSubWords(state);
+						// void BigSubWords(hashState *state)
+						{
+							int i,j;
+							state->k1[0][1] = (state->counter_hi >> 0);
+							state->k1[1][1] = (state->counter_hi >> 8);
+							state->k1[2][1] = (state->counter_hi >> 16);
+							state->k1[3][1] = (state->counter_hi >> 24);
+							for (j=0; j<4; j++)
+							{
+								for (i=0; i<4; i++)
+								{
+									state->k1[0][0] = (state->counter_lo >> 0);
+									state->k1[1][0] = (state->counter_lo >> 8);
+									state->k1[2][0] = (state->counter_lo >> 16);
+									state->k1[3][0] = (state->counter_lo >> 24);
+									// aes(state->tab[i][j], state->k1);
+									// void aes(word8 a[4][4], word8 k[4][4])
+									{
+										// SubByte(state->tab[i][j]);
+										// void SubByte(word8 a[4][4])
+										 int tmpi=i,tmpj=j;
+										{
+											/* Replace every byte of the input by the byte at that place
+											 * in the nonlinear S-box.
+											 */
+											int i, j;
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) 
+													state->tab[tmpi][tmpj][i][j] = Sbox[state->tab[tmpi][tmpj][i][j]] ;
+										}
+										// ShiftRows(state->tab[i][j]);
+										// void ShiftRows(word8 a[4][4]) 
+										{
+											/* Row 0 remains unchanged
+											 * The other three rows are shifted a variable amount
+											 */
+											word8 tmp[4];
+											int i, j;
+
+											for(i = 1; i < 4; i++) {
+												for(j = 0; j < 4; j++) 
+													tmp[j] = state->tab[tmpi][tmpj][i][(j + i) % 4];
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = tmp[j];
+											}
+										}
+										// MixColumns(state->tab[i][j]);
+										// void MixColumns(word8 a[4][4]) 
+										{
+											/* Mix the four bytes of every column in a linear way	 */
+											word8 b[4][4];
+											int i, j;
+											for(j = 0; j < 4; j++)
+												for(i = 0; i < 4; i++)
+													b[i][j] = mul(2,state->tab[tmpi][tmpj][i][j])
+													^ mul(3,state->tab[tmpi][tmpj][(i + 1) % 4][j])
+													^ state->tab[tmpi][tmpj][(i + 2) % 4][j]
+													^ state->tab[tmpi][tmpj][(i + 3) % 4][j];
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = b[i][j];
+										}
+										// AddRoundKey(state->tab[i][j],state->k1);
+										// void AddRoundKey(word8 a[4][4], word8 k[4][4])
+										{
+											/* Exor corresponding text input and key input bytes*/
+											int i, j;
+											for(i = 0; i < 4; i++)
+										   		for(j = 0; j < 4; j++) {
+													state->tab[tmpi][tmpj][i][j] ^= (state->k1)[i][j];
+												}
+										}
+									}
+									// aes(state->tab[i][j], state->k2);
+									// void aes(word8 a[4][4], word8 k[4][4])
+									{
+										// SubByte(state->tab[i][j]);
+										// void SubByte(word8 a[4][4])
+										int tmpi=i,tmpj=j;
+										{
+											/* Replace every byte of the input by the byte at that place
+											 * in the nonlinear S-box.
+											 */
+											int i, j;
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) 
+													state->tab[tmpi][tmpj][i][j] = Sbox[state->tab[tmpi][tmpj][i][j]] ;
+										}
+										// ShiftRows(state->tab[i][j]);
+										// void ShiftRows(word8 a[4][4]) 
+										{
+											/* Row 0 remains unchanged
+											 * The other three rows are shifted a variable amount
+											 */
+											word8 tmp[4];
+											int i, j;
+
+											for(i = 1; i < 4; i++) {
+												for(j = 0; j < 4; j++) 
+													tmp[j] = state->tab[tmpi][tmpj][i][(j + i) % 4];
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = tmp[j];
+											}
+										}
+										// MixColumns(state->tab[i][j]);
+										// void MixColumns(word8 a[4][4]) 
+										{
+											/* Mix the four bytes of every column in a linear way	 */
+											word8 b[4][4];
+											int i, j;
+											for(j = 0; j < 4; j++)
+												for(i = 0; i < 4; i++)
+													b[i][j] = mul(2,state->tab[tmpi][tmpj][i][j])
+													^ mul(3,state->tab[tmpi][tmpj][(i + 1) % 4][j])
+													^ state->tab[tmpi][tmpj][(i + 2) % 4][j]
+													^ state->tab[tmpi][tmpj][(i + 3) % 4][j];
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = b[i][j];
+										}
+										// AddRoundKey(state->tab[i][j],state->k2);
+										// void AddRoundKey(word8 a[4][4], word8 k[4][4])
+										{
+											/* Exor corresponding text input and key input bytes*/
+											int i, j;
+											for(i = 0; i < 4; i++)
+										   		for(j = 0; j < 4; j++) {
+													state->tab[tmpi][tmpj][i][j] ^= (state->k2)[i][j];
+												}
+										}
+									}
+									state->counter_lo++;
+									if (state->counter_lo == 0)
+									{
+										state->counter_hi++;
+										state->k1[0][1] = (state->counter_hi >> 0);
+										state->k1[1][1] = (state->counter_hi >> 8);
+										state->k1[2][1] = (state->counter_hi >> 16);
+										state->k1[3][1] = (state->counter_hi >> 24);
+									}
+								}
+							}
+						}
+						// BigShiftRows(state);
+						// void BigShiftRows(hashState *state)
+						{
+							word8 tmp[4][4][4];
+							int i, j, k, l, m;	
+							for(i = 1; i < 4; i++) 
+							{
+								for(j = 0; j < 4; j++)
+								{
+									m = (j + i) % 4;
+									for(k = 0; k < 4; k++)
+									{
+										for(l = 0; l < 4; l++)
+										{
+						     				tmp[j][k][l] = state->tab[i][m][k][l];
+										}
+									}
+								}
+								for(j = 0; j < 4; j++) 
+								{
+									for(k = 0; k < 4; k++)
+									{
+										for(l = 0; l < 4; l++)
+										{
+											state->tab[i][j][k][l] = tmp[j][k][l];
+										}
+									}
+								}
+							}
+						}
+						// BigMixColumns(state);
+						// void BigMixColumns(hashState *state)
+						{
+							int i,j,k;
+							for(i=0; i<4; i++)
+							{
+								for(j=0; j<4; j++)
+								{
+									for(k=0; k<4; k++)
+									{
+										// Mix4bytes(&state->tab[0][i][j][k],&state->tab[1][i][j][k],&state->tab[2][i][j][k],&state->tab[3][i][j][k]);
+										// void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d) 
+										{
+											/* Mix four bytes in a linear way */
+											word8 aa, bb, cc, dd;
+
+											aa = mul(2,(state->tab[0][i][j][k]))^mul(3,state->tab[1][i][j][k])^(state->tab[2][i][j][k])^(state->tab[3][i][j][k]);
+											bb = mul(2,state->tab[1][i][j][k])^mul(3,state->tab[2][i][j][k])^(state->tab[3][i][j][k])^(state->tab[0][i][j][k]);
+											cc = mul(2,state->tab[2][i][j][k])^mul(3,state->tab[3][i][j][k])^(state->tab[0][i][j][k])^(state->tab[1][i][j][k]);
+											dd = mul(2,state->tab[3][i][j][k])^mul(3,state->tab[0][i][j][k])^(state->tab[1][i][j][k])^(state->tab[2][i][j][k]);
+											state->tab[0][i][j][k] = aa;
+											state->tab[1][i][j][k] = bb;
+											state->tab[2][i][j][k] = cc;
+											state->tab[3][i][j][k] = dd;
+										}
+									}
+								}
+							}
+						}
+					}
+					// BigFinal(state);
+					// void BigFinal(hashState *state)
+					{
+						int i,j,k;
+						if (state->cv_size == 512)
+						{
+							for(i=0; i<4; i++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(j=0; j<4; j++)
+									{
+										state->tab[i][0][j][k] = 
+										state->tab_backup[i][0][j][k] ^ 
+										state->tab_backup[i][1][j][k] ^ 
+										state->tab_backup[i][2][j][k] ^ 
+										state->tab_backup[i][3][j][k] ^
+										state->tab[i][0][j][k] ^ 
+										state->tab[i][1][j][k] ^ 
+										state->tab[i][2][j][k] ^ 
+										state->tab[i][3][j][k] ;
+									}
+								}
+							}
+						}
+						else
+						{
+							for(i=0; i<4; i++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(j=0; j<4; j++)
+									{
+										state->tab[i][0][j][k] = 
+										state->tab_backup[i][0][j][k] ^ 
+										state->tab_backup[i][2][j][k] ^
+										state->tab[i][0][j][k] ^ 
+										state->tab[i][2][j][k];
+									}
+								}
+							}
+							for(i=0; i<4; i++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(j=0; j<4; j++)
+									{
+										state->tab[i][1][j][k] = 
+										state->tab_backup[i][1][j][k] ^ 
+										state->tab_backup[i][3][j][k] ^
+										state->tab[i][1][j][k] ^ 
+										state->tab[i][3][j][k];
+									}
+								}
+							}
+						}
+					}
+				}
 				state->index = state->cv_size/8;
 			}
 		}
@@ -331,7 +631,181 @@ __kernel int Hash(
 					//Push(state, 0);
 			*state->Addresses[state->index++]= 0;
 				}
-				Compress(state);
+				// Compress(state);
+				// void Compress(hashState *state)
+				{
+					int i;
+					// Backup(state);
+					// void Backup(hashState *state)
+					{
+						int i,j,k,l;
+						for(i=0; i<4; i++)
+						{
+							for(j=0; j<4; j++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(l=0; l<4; l++)
+									{
+										state->tab_backup[i][j][k][l] = state->tab[i][j][k][l];
+									}
+								}
+							}
+						}
+					}
+					state->counter_hi = state->messlenhi;
+					state->counter_lo = state->messlenlo;
+					for (i=0; i<state->rounds; i++)
+					{
+						// BigSubWords(state);
+						// void BigSubWords(hashState *state)
+						{
+							int i,j;
+							state->k1[0][1] = (state->counter_hi >> 0);
+							state->k1[1][1] = (state->counter_hi >> 8);
+							state->k1[2][1] = (state->counter_hi >> 16);
+							state->k1[3][1] = (state->counter_hi >> 24);
+							for (j=0; j<4; j++)
+							{
+								for (i=0; i<4; i++)
+								{
+									state->k1[0][0] = (state->counter_lo >> 0);
+									state->k1[1][0] = (state->counter_lo >> 8);
+									state->k1[2][0] = (state->counter_lo >> 16);
+									state->k1[3][0] = (state->counter_lo >> 24);
+									aes(state->tab[i][j], state->k1);
+									aes(state->tab[i][j], state->k2);
+									state->counter_lo++;
+									if (state->counter_lo == 0)
+									{
+										state->counter_hi++;
+										state->k1[0][1] = (state->counter_hi >> 0);
+										state->k1[1][1] = (state->counter_hi >> 8);
+										state->k1[2][1] = (state->counter_hi >> 16);
+										state->k1[3][1] = (state->counter_hi >> 24);
+									}
+								}
+							}
+						}
+						// BigShiftRows(state);
+						// void BigShiftRows(hashState *state)
+						{
+							word8 tmp[4][4][4];
+							int i, j, k, l, m;	
+							for(i = 1; i < 4; i++) 
+							{
+								for(j = 0; j < 4; j++)
+								{
+									m = (j + i) % 4;
+									for(k = 0; k < 4; k++)
+									{
+										for(l = 0; l < 4; l++)
+										{
+						     				tmp[j][k][l] = state->tab[i][m][k][l];
+										}
+									}
+								}
+								for(j = 0; j < 4; j++) 
+								{
+									for(k = 0; k < 4; k++)
+									{
+										for(l = 0; l < 4; l++)
+										{
+											state->tab[i][j][k][l] = tmp[j][k][l];
+										}
+									}
+								}
+							}
+						}
+						// BigMixColumns(state);
+						// void BigMixColumns(hashState *state)
+						{
+							int i,j,k;
+							for(i=0; i<4; i++)
+							{
+								for(j=0; j<4; j++)
+								{
+									for(k=0; k<4; k++)
+									{
+										// Mix4bytes(&state->tab[0][i][j][k],&state->tab[1][i][j][k],&state->tab[2][i][j][k],&state->tab[3][i][j][k]);
+										// void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d) 
+										{
+											/* Mix four bytes in a linear way */
+											word8 aa, bb, cc, dd;
+
+											aa = mul(2,(state->tab[0][i][j][k]))^mul(3,state->tab[1][i][j][k])^(state->tab[2][i][j][k])^(state->tab[3][i][j][k]);
+											bb = mul(2,state->tab[1][i][j][k])^mul(3,state->tab[2][i][j][k])^(state->tab[3][i][j][k])^(state->tab[0][i][j][k]);
+											cc = mul(2,state->tab[2][i][j][k])^mul(3,state->tab[3][i][j][k])^(state->tab[0][i][j][k])^(state->tab[1][i][j][k]);
+											dd = mul(2,state->tab[3][i][j][k])^mul(3,state->tab[0][i][j][k])^(state->tab[1][i][j][k])^(state->tab[2][i][j][k]);
+											state->tab[0][i][j][k] = aa;
+											state->tab[1][i][j][k] = bb;
+											state->tab[2][i][j][k] = cc;
+											state->tab[3][i][j][k] = dd;
+										}
+									}
+								}
+							}
+						}
+					}
+					// BigFinal(state);
+					// void BigFinal(hashState *state)
+					{
+						int i,j,k;
+						if (state->cv_size == 512)
+						{
+							for(i=0; i<4; i++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(j=0; j<4; j++)
+									{
+										state->tab[i][0][j][k] = 
+										state->tab_backup[i][0][j][k] ^ 
+										state->tab_backup[i][1][j][k] ^ 
+										state->tab_backup[i][2][j][k] ^ 
+										state->tab_backup[i][3][j][k] ^
+										state->tab[i][0][j][k] ^ 
+										state->tab[i][1][j][k] ^ 
+										state->tab[i][2][j][k] ^ 
+										state->tab[i][3][j][k] ;
+									}
+								}
+							}
+						}
+						else
+						{
+							for(i=0; i<4; i++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(j=0; j<4; j++)
+									{
+										state->tab[i][0][j][k] = 
+										state->tab_backup[i][0][j][k] ^ 
+										state->tab_backup[i][2][j][k] ^
+										state->tab[i][0][j][k] ^ 
+										state->tab[i][2][j][k];
+									}
+								}
+							}
+							for(i=0; i<4; i++)
+							{
+								for(k=0; k<4; k++)
+								{
+									for(j=0; j<4; j++)
+									{
+										state->tab[i][1][j][k] = 
+										state->tab_backup[i][1][j][k] ^ 
+										state->tab_backup[i][3][j][k] ^
+										state->tab[i][1][j][k] ^ 
+										state->tab[i][3][j][k];
+									}
+								}
+							}
+						}
+					}
+				}
+				
 				state->index = state->cv_size/8;
 				//no message bit in next block
 				nFinalPadding = 1;
@@ -375,7 +849,180 @@ __kernel int Hash(
 				state->messlenhi = 0;
 				state->messlenlo = 0;
 			}
-			Compress(state);
+			// Compress(state);
+			// void Compress(hashState *state)
+			{
+				int i;
+				// Backup(state);
+				// void Backup(hashState *state)
+				{
+					int i,j,k,l;
+					for(i=0; i<4; i++)
+					{
+						for(j=0; j<4; j++)
+						{
+							for(k=0; k<4; k++)
+							{
+								for(l=0; l<4; l++)
+								{
+									state->tab_backup[i][j][k][l] = state->tab[i][j][k][l];
+								}
+							}
+						}
+					}
+				}
+				state->counter_hi = state->messlenhi;
+				state->counter_lo = state->messlenlo;
+				for (i=0; i<state->rounds; i++)
+				{
+					// BigSubWords(state);
+					// void BigSubWords(hashState *state)
+					{
+						int i,j;
+						state->k1[0][1] = (state->counter_hi >> 0);
+						state->k1[1][1] = (state->counter_hi >> 8);
+						state->k1[2][1] = (state->counter_hi >> 16);
+						state->k1[3][1] = (state->counter_hi >> 24);
+						for (j=0; j<4; j++)
+						{
+							for (i=0; i<4; i++)
+							{
+								state->k1[0][0] = (state->counter_lo >> 0);
+								state->k1[1][0] = (state->counter_lo >> 8);
+								state->k1[2][0] = (state->counter_lo >> 16);
+								state->k1[3][0] = (state->counter_lo >> 24);
+								aes(state->tab[i][j], state->k1);
+								aes(state->tab[i][j], state->k2);
+								state->counter_lo++;
+								if (state->counter_lo == 0)
+								{
+									state->counter_hi++;
+									state->k1[0][1] = (state->counter_hi >> 0);
+									state->k1[1][1] = (state->counter_hi >> 8);
+									state->k1[2][1] = (state->counter_hi >> 16);
+									state->k1[3][1] = (state->counter_hi >> 24);
+								}
+							}
+						}
+					}
+					// BigShiftRows(state);
+					// void BigShiftRows(hashState *state)
+					{
+						word8 tmp[4][4][4];
+						int i, j, k, l, m;	
+						for(i = 1; i < 4; i++) 
+						{
+							for(j = 0; j < 4; j++)
+							{
+								m = (j + i) % 4;
+								for(k = 0; k < 4; k++)
+								{
+									for(l = 0; l < 4; l++)
+									{
+					     				tmp[j][k][l] = state->tab[i][m][k][l];
+									}
+								}
+							}
+							for(j = 0; j < 4; j++) 
+							{
+								for(k = 0; k < 4; k++)
+								{
+									for(l = 0; l < 4; l++)
+									{
+										state->tab[i][j][k][l] = tmp[j][k][l];
+									}
+								}
+							}
+						}
+					}
+					// BigMixColumns(state);
+					// void BigMixColumns(hashState *state)
+					{
+						int i,j,k;
+						for(i=0; i<4; i++)
+						{
+							for(j=0; j<4; j++)
+							{
+								for(k=0; k<4; k++)
+								{
+									// Mix4bytes(&state->tab[0][i][j][k],&state->tab[1][i][j][k],&state->tab[2][i][j][k],&state->tab[3][i][j][k]);
+									// void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d) 
+									{
+										/* Mix four bytes in a linear way */
+										word8 aa, bb, cc, dd;
+
+										aa = mul(2,(state->tab[0][i][j][k]))^mul(3,state->tab[1][i][j][k])^(state->tab[2][i][j][k])^(state->tab[3][i][j][k]);
+										bb = mul(2,state->tab[1][i][j][k])^mul(3,state->tab[2][i][j][k])^(state->tab[3][i][j][k])^(state->tab[0][i][j][k]);
+										cc = mul(2,state->tab[2][i][j][k])^mul(3,state->tab[3][i][j][k])^(state->tab[0][i][j][k])^(state->tab[1][i][j][k]);
+										dd = mul(2,state->tab[3][i][j][k])^mul(3,state->tab[0][i][j][k])^(state->tab[1][i][j][k])^(state->tab[2][i][j][k]);
+										state->tab[0][i][j][k] = aa;
+										state->tab[1][i][j][k] = bb;
+										state->tab[2][i][j][k] = cc;
+										state->tab[3][i][j][k] = dd;
+									}
+								}
+							}
+						}
+					}
+				}
+				// BigFinal(state);
+				// void BigFinal(hashState *state)
+				{
+					int i,j,k;
+					if (state->cv_size == 512)
+					{
+						for(i=0; i<4; i++)
+						{
+							for(k=0; k<4; k++)
+							{
+								for(j=0; j<4; j++)
+								{
+									state->tab[i][0][j][k] = 
+									state->tab_backup[i][0][j][k] ^ 
+									state->tab_backup[i][1][j][k] ^ 
+									state->tab_backup[i][2][j][k] ^ 
+									state->tab_backup[i][3][j][k] ^
+									state->tab[i][0][j][k] ^ 
+									state->tab[i][1][j][k] ^ 
+									state->tab[i][2][j][k] ^ 
+									state->tab[i][3][j][k] ;
+								}
+							}
+						}
+					}
+					else
+					{
+						for(i=0; i<4; i++)
+						{
+							for(k=0; k<4; k++)
+							{
+								for(j=0; j<4; j++)
+								{
+									state->tab[i][0][j][k] = 
+									state->tab_backup[i][0][j][k] ^ 
+									state->tab_backup[i][2][j][k] ^
+									state->tab[i][0][j][k] ^ 
+									state->tab[i][2][j][k];
+								}
+							}
+						}
+						for(i=0; i<4; i++)
+						{
+							for(k=0; k<4; k++)
+							{
+								for(j=0; j<4; j++)
+								{
+									state->tab[i][1][j][k] = 
+									state->tab_backup[i][1][j][k] ^ 
+									state->tab_backup[i][3][j][k] ^
+									state->tab[i][1][j][k] ^ 
+									state->tab[i][3][j][k];
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		/* output truncated hash value */
 		state->index = 0;
@@ -412,7 +1059,8 @@ word8 mul(word8 a, word8 b) {
 	else return 0;
 }
 
-void AddRoundKey(word8 a[4][4], word8 k[4][4]) {
+void AddRoundKey(word8 a[4][4], word8 k[4][4]) 
+{
 	/* Exor corresponding text input and key input bytes
 	 */
 	int i, j;
@@ -460,201 +1108,10 @@ void MixColumns(word8 a[4][4]) {
 		for(j = 0; j < 4; j++) a[i][j] = b[i][j];
 }
 
-void aes(word8 a[4][4], word8 k[4][4])
-{
-	SubByte(a);
-	ShiftRows(a);
-	MixColumns(a);
-	AddRoundKey(a,k);
-}
-
-void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d) 
-{
-	/* Mix four bytes in a linear way */
-	word8 aa, bb, cc, dd;
-	
-	aa = mul(2,*a)^mul(3,*b)^(*c)^(*d);
-	bb = mul(2,*b)^mul(3,*c)^(*d)^(*a);
-	cc = mul(2,*c)^mul(3,*d)^(*a)^(*b);
-	dd = mul(2,*d)^mul(3,*a)^(*b)^(*c);
-	*a = aa;
-	*b = bb;
-	*c = cc;
-	*d = dd;
-}
-
-word8* Stack(hashState *state)
-{
-	return state->Addresses[state->index];
-}
-
-void Compress(hashState *state)
-{
-	int i;
-	Backup(state);
-	state->counter_hi = state->messlenhi;
-	state->counter_lo = state->messlenlo;
-	for (i=0; i<state->rounds; i++)
-	{
-		BigSubWords(state);
-		BigShiftRows(state);
-		BigMixColumns(state);
-	}
-	BigFinal(state);
-}
-void BigSubWords(hashState *state)
-{
-	int i,j;
-	state->k1[0][1] = (state->counter_hi >> 0);
-	state->k1[1][1] = (state->counter_hi >> 8);
-	state->k1[2][1] = (state->counter_hi >> 16);
-	state->k1[3][1] = (state->counter_hi >> 24);
-	for (j=0; j<4; j++)
-	{
-		for (i=0; i<4; i++)
-		{
-			state->k1[0][0] = (state->counter_lo >> 0);
-			state->k1[1][0] = (state->counter_lo >> 8);
-			state->k1[2][0] = (state->counter_lo >> 16);
-			state->k1[3][0] = (state->counter_lo >> 24);
-			aes(state->tab[i][j], state->k1);
-			aes(state->tab[i][j], state->k2);
-			state->counter_lo++;
-			if (state->counter_lo == 0)
-			{
-				state->counter_hi++;
-				state->k1[0][1] = (state->counter_hi >> 0);
-				state->k1[1][1] = (state->counter_hi >> 8);
-				state->k1[2][1] = (state->counter_hi >> 16);
-				state->k1[3][1] = (state->counter_hi >> 24);
-			}
-		}
-	}
-}
-void BigShiftRows(hashState *state)
-{
-	word8 tmp[4][4][4];
-	int i, j, k, l, m;	
-	for(i = 1; i < 4; i++) 
-	{
-		for(j = 0; j < 4; j++)
-		{
-			m = (j + i) % 4;
-			for(k = 0; k < 4; k++)
-			{
-				for(l = 0; l < 4; l++)
-				{
-     				tmp[j][k][l] = state->tab[i][m][k][l];
-				}
-			}
-		}
-		for(j = 0; j < 4; j++) 
-		{
-			for(k = 0; k < 4; k++)
-			{
-				for(l = 0; l < 4; l++)
-				{
-					state->tab[i][j][k][l] = tmp[j][k][l];
-				}
-			}
-		}
-	}
-}
-
-void BigMixColumns(hashState *state)
-{
-	int i,j,k;
-	for(i=0; i<4; i++)
-	{
-		for(j=0; j<4; j++)
-		{
-			for(k=0; k<4; k++)
-			{
-				Mix4bytes(
-						  &state->tab[0][i][j][k]
-						  ,&state->tab[1][i][j][k]
-						  ,&state->tab[2][i][j][k]
-						  ,&state->tab[3][i][j][k]
-						  );
-			}
-		}
-	}
-}
-
-void Backup(hashState *state)
-{
-	int i,j,k,l;
-	for(i=0; i<4; i++)
-	{
-		for(j=0; j<4; j++)
-		{
-			for(k=0; k<4; k++)
-			{
-				for(l=0; l<4; l++)
-				{
-					state->tab_backup[i][j][k][l] = state->tab[i][j][k][l];
-				}
-			}
-		}
-	}
-}
-
-void BigFinal(hashState *state)
-{
-	int i,j,k;
-	if (state->cv_size == 512)
-	{
-		for(i=0; i<4; i++)
-		{
-			for(k=0; k<4; k++)
-			{
-				for(j=0; j<4; j++)
-				{
-					state->tab[i][0][j][k] = 
-					state->tab_backup[i][0][j][k] ^ 
-					state->tab_backup[i][1][j][k] ^ 
-					state->tab_backup[i][2][j][k] ^ 
-					state->tab_backup[i][3][j][k] ^
-					state->tab[i][0][j][k] ^ 
-					state->tab[i][1][j][k] ^ 
-					state->tab[i][2][j][k] ^ 
-					state->tab[i][3][j][k] ;
-				}
-			}
-		}
-	}
-	else
-	{
-		for(i=0; i<4; i++)
-		{
-			for(k=0; k<4; k++)
-			{
-				for(j=0; j<4; j++)
-				{
-					state->tab[i][0][j][k] = 
-					state->tab_backup[i][0][j][k] ^ 
-					state->tab_backup[i][2][j][k] ^
-					state->tab[i][0][j][k] ^ 
-					state->tab[i][2][j][k];
-				}
-			}
-		}
-		for(i=0; i<4; i++)
-		{
-			for(k=0; k<4; k++)
-			{
-				for(j=0; j<4; j++)
-				{
-					state->tab[i][1][j][k] = 
-					state->tab_backup[i][1][j][k] ^ 
-					state->tab_backup[i][3][j][k] ^
-					state->tab[i][1][j][k] ^ 
-					state->tab[i][3][j][k];
-				}
-			}
-		}
-	}
-}
-
-
-
+									void aes(word8 a[4][4], word8 k[4][4])
+									{
+										SubByte(a);
+										ShiftRows(a);
+										MixColumns(a);
+										AddRoundKey(a,k);
+									}
