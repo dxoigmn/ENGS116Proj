@@ -8,8 +8,6 @@
 ** 
 ************************************************************************/
 
-#include <string.h>
-
 /******************************************************************/
 /*     AHS API code                                               */
 /******************************************************************/
@@ -106,7 +104,7 @@ void Skein_512_Process_Block(unsigned long *_X, unsigned long *_T, const unsigne
             ks[i]     = _X[i];
             ks[SKEIN_512_STATE_WORDS] ^= _X[i];            /* compute overall parity */
         }
-        
+
         ts[0] = _T[0];
         ts[1] = _T[1];
         ts[2] = ts[0] ^ ts[1];
@@ -202,6 +200,7 @@ void Skein_512_Process_Block(unsigned long *_X, unsigned long *_T, const unsigne
 /* all-in-one hash function */
 __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned char *data, __global unsigned int *databitlen, __global unsigned char *hashval)
 {
+    unsigned int  i;
     unsigned int  bCnt = 0;
     unsigned char b[SKEIN_512_BLOCK_BYTES];
     unsigned long X[SKEIN_512_STATE_WORDS];
@@ -219,13 +218,21 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
         T[0] = 0;
         T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_CFG_FINAL;
 
-        memset(&cfg.w, 0, sizeof(cfg.w));             /* pre-pad cfg.w[] with zeroes */
+        //memset(&cfg.w, 0, sizeof(cfg.w));             /* pre-pad cfg.w[] with zeroes */
+        for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
+          cfg.w[i] = 0;
+        }
+
         cfg.w[0] = SKEIN_SCHEMA_VER;                  /* set the schema, version */
         cfg.w[1] = *hashbitlen;                       /* hash result length in bits */
         cfg.w[2] = SKEIN_CFG_TREE_INFO_SEQUENTIAL;
 
         /* compute the initial chaining values from config block */
-        memset(X, 0, SKEIN_512_STATE_WORDS * sizeof(unsigned long));  /* zero the chaining variables */
+        //memset(X, 0, SKEIN_512_STATE_WORDS * sizeof(unsigned long));  /* zero the chaining variables */
+        for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
+          X[i] = 0;
+        }
+
         Skein_512_Process_Block(X, T, cfg.b, 1, SKEIN_CFG_STR_LEN);
 
         /* The chaining vars ctx->X are now initialized for the given hashbitlen. */
@@ -236,11 +243,11 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
         
         //return 0;
     }
-    
+
     //Update(&bCnt, b, X, T, data, databitlen);
     //int Update(unsigned int *bCnt, unsigned char *b, unsigned long *X, unsigned long *T, const unsigned char *data, unsigned long long databitlen)
     {
-        unsigned int n;
+        unsigned int i,n;
         unsigned char *msg = (unsigned char *)data;
         unsigned int msgByteCnt = *databitlen >> 3;
 
@@ -249,7 +256,10 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
             if (bCnt) {                              /* finish up any buffered message data */
                 n = SKEIN_512_BLOCK_BYTES - bCnt;  /* # bytes free in buffer b[] */
                 if (n) {
-                    memcpy(&b[bCnt], msg, n);
+                    //memcpy(&b[bCnt], msg, n);
+                    for (i = 0; i < n; i++) {
+                      b[bCnt+i] = msg[i];
+                    }
                     msgByteCnt  -= n;
                     msg         += n;
                     bCnt        += n;
@@ -270,7 +280,10 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
 
         /* copy any remaining source message data bytes into b[] */
         if (msgByteCnt) {
-            memcpy(&b[bCnt], msg, msgByteCnt);
+            //memcpy(&b[bCnt], msg, msgByteCnt);
+            for (i = 0; i < msgByteCnt; i++) {
+              b[bCnt+i] = msg[i];
+            }
             bCnt += msgByteCnt;
         }
 
@@ -280,12 +293,15 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
     //Final(&bCnt, b, X, T, hashbitlen, hashval);
     //int Final(unsigned int *bCnt, unsigned char *b, unsigned long *_X, unsigned long *T, int hashBitLen, unsigned char *hashVal)
     {
-        unsigned int i,n,byteCnt;
+        unsigned int i,j,n,byteCnt;
         unsigned long _X[SKEIN_512_STATE_WORDS];
 
         T[1] |= SKEIN_T1_FLAG_FINAL;                  /* tag as the final block */
         if (bCnt < SKEIN_512_BLOCK_BYTES) {          /* zero pad b[] if necessary */
-            memset(&b[bCnt], 0, SKEIN_512_BLOCK_BYTES - bCnt);
+          //memset(&b[bCnt], 0, SKEIN_512_BLOCK_BYTES - bCnt);
+          for (i = 0; i < SKEIN_512_BLOCK_BYTES - bCnt; i++) {
+            b[bCnt+i] = 0;
+          }
         }
 
         Skein_512_Process_Block(X, T, b, 1, bCnt);  /* process the final block */
@@ -294,8 +310,15 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
         byteCnt = (*hashbitlen + 7) >> 3;             /* total number of output bytes */
 
         /* run Threefish in "counter mode" to generate more output */
-        memset(b, 0 , SKEIN_512_BLOCK_BYTES);  /* zero out b[], so it can hold the counter */
-        memcpy(_X, X, SKEIN_512_STATE_WORDS * sizeof(unsigned long));       /* keep a local copy of counter mode "key" */
+        //memset(b, 0 , SKEIN_512_BLOCK_BYTES);  /* zero out b[], so it can hold the counter */
+        for (i = 0; i < SKEIN_512_BLOCK_BYTES; i++) {
+          b[i] = 0;
+        }
+
+        //memcpy(_X, X, SKEIN_512_STATE_WORDS * sizeof(unsigned long));       /* keep a local copy of counter mode "key" */
+        for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
+          _X[i] = X[i];
+        }
 
         for (i=0;i*SKEIN_512_BLOCK_BYTES < byteCnt;i++) {
             ((unsigned long *)b)[0]= ((unsigned long) i); /* build the counter block */
@@ -318,7 +341,10 @@ __kernel int Hash(__global unsigned int *hashbitlen, __global const unsigned cha
                 dst[m] = (unsigned char) (src[m>>3] >> (8*(m&7)));
             }
 
-            memcpy(X, _X, SKEIN_512_STATE_WORDS * sizeof(unsigned long));   /* restore the counter mode key for next time */
+            //memcpy(X, _X, SKEIN_512_STATE_WORDS * sizeof(unsigned long));   /* restore the counter mode key for next time */
+            for (j = 0; j < SKEIN_512_STATE_WORDS; j++) {
+              X[j] = _X[j];
+            }
         }
 
         //return 0;
