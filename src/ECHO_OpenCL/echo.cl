@@ -1,3 +1,5 @@
+#define mul(a,b) ((a && b)?(Alogtable[(Logtable[a] + Logtable[b])%255]):(0))
+
 typedef unsigned char		word8;	
 typedef unsigned short		word16;	
 typedef unsigned long		word32;
@@ -29,9 +31,6 @@ typedef struct {
 	int rounds;
 	int Computed;
 } hashState;
-
-
-word8 mul(word8 a, word8 b);
 
 word8 Logtable[256] = {
 	0,   0,  25,   1,  50,   2,  26, 198,  75, 199,  27, 104,  51, 238, 223,   3, 
@@ -89,10 +88,6 @@ word8 Sbox[256] = {
 	225, 248, 152,  17, 105, 217, 142, 148, 155,  30, 135, 233, 206,  85,  40, 223, 
 	140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,  22, 
 };
-
-
-
-/* Local Function Prototyptes */
 
 __kernel int Hash(                                                       
 					__global unsigned int *hashbitlen_in,
@@ -1231,13 +1226,4 @@ __kernel int Hash(
 	}
 	*output=S;
 	return output;                        
-}
-
-
-word8 mul(word8 a, word8 b) {
-	/* multiply two elements of GF(2^m)
-	 * needed for MixColumn and InvMixColumn
-	 */
-	if (a && b) return Alogtable[(Logtable[a] + Logtable[b])%255];
-	else return 0;
 }
