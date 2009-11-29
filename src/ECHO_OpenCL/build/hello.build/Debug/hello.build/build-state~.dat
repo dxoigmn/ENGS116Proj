@@ -1,0 +1,112 @@
+Thello
+v7
+r0
+t280857976.487138
+cCheck dependencies
+cCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c" normal i386 c com.apple.compilers.gcc.4_2
+cLd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello" normal i386
+
+N/System/Library/Frameworks/OpenCL.framework/Headers/opencl.h
+c000000004A3957E20000000000000244
+t1245272034
+s580
+
+N/System/Library/Frameworks/OpenCL.framework/OpenCL
+c000000004A5EC43700000000000545F0
+t1247724599
+s345584
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello
+t1259165176
+s14520
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList
+c000000004B0D55F80000000000000073
+t1259165176
+s115
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+t1259165176
+s8164
+
+N/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c
+c0000000049FF936800000000000027A6
+t1241486184
+s10150
+i<fcntl.h>
+i<stdio.h>
+i<stdlib.h>
+i<string.h>
+i<math.h>
+i<unistd.h>
+i<sys/types.h>
+i<sys/stat.h>
+i<OpenCL/opencl.h>
+
+N/usr/include/fcntl.h
+c000000004A5C14A600000000000003EA
+t1247548582
+s1002
+
+N/usr/include/math.h
+c000000004A5C14A000000000000004F1
+t1247548576
+s1265
+
+N/usr/include/stdio.h
+c000000004A5C14A70000000000004174
+t1247548583
+s16756
+
+N/usr/include/stdlib.h
+c000000004A5C14A70000000000002DF5
+t1247548583
+s11765
+
+N/usr/include/string.h
+c000000004A5C14A70000000000001731
+t1247548583
+s5937
+
+N/usr/include/sys/stat.h
+c000000004A73D6550000000000004A1D
+t1249105493
+s18973
+
+N/usr/include/sys/types.h
+c000000004A73D6550000000000002905
+t1249105493
+s10501
+
+N/usr/include/unistd.h
+c000000004A5C14A7000000000000563E
+t1247548583
+s22078
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies280857976#280857976#0(0"0(0#1#0"4300882208#0"0#
+
+CCompileC build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c" normal i386 c com.apple.compilers.gcc.4_2
+s280857976.140387
+e280857976.339265
+r1
+xCompileC
+xbuild/hello.build/Debug/hello.build/Objects-normal/i386/hello.o
+x/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c
+xnormal
+xi386
+xc
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@66"Compile /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c280857976#280857976#0(0"0(0#0#58"/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c4300882208#898"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    setenv LANG en_US.US-ASCII    /Developer/usr/bin/gcc-4.2 -x c -arch i386 -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -mfix-and-continue -gdwarf-2 "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/hello.hmap" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/include" -I../../inc "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources/i386" "-I/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/DerivedSources" -c "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/hello.c" -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.o"0#
+
+CLd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello" normal i386
+s280857976.339378
+e280857976.487100
+r1
+xLd
+x/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello
+xnormal
+xi386
+lSLF07#2@73"Link /Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello280857976#280857976#0(0"0(0#0#0"4300882208#540"    cd "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2"    /Developer/usr/bin/gcc-4.2 -arch i386 "-L/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" -L../../lib "-L/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/../lib" "-F/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug" -filelist "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/hello.build/Debug/hello.build/Objects-normal/i386/hello.LinkFileList" -framework OpenCL -o "/Users/gabe/Downloads/OpenCL_Hello_World_Example 2/build/Debug/hello"0#
+
