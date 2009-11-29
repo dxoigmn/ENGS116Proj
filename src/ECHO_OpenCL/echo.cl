@@ -32,12 +32,6 @@ typedef struct {
 
 
 word8 mul(word8 a, word8 b);
-void AddRoundKey(word8 a[4][4], word8 k[4][4]);
-
-HashReturn SetSalt(hashState *state, const BitSequence salt[16]);
-
-
-int level_trace;
 
 word8 Logtable[256] = {
 	0,   0,  25,   1,  50,   2,  26, 198,  75, 199,  27, 104,  51, 238, 223,   3, 
@@ -77,25 +71,6 @@ word8 Alogtable[256] = {
 	57,  75, 221, 124, 132, 151, 162, 253,  28,  36, 108, 180, 199,  82, 246,   1, 
 };
 
-word8 S[256] = {
-	99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171, 118, 
-	202, 130, 201, 125, 250,  89,  71, 240, 173, 212, 162, 175, 156, 164, 114, 192, 
-	183, 253, 147,  38,  54,  63, 247, 204,  52, 165, 229, 241, 113, 216,  49,  21, 
-	4, 199,  35, 195,  24, 150,   5, 154,   7,  18, 128, 226, 235,  39, 178, 117, 
-	9, 131,  44,  26,  27, 110,  90, 160,  82,  59, 214, 179,  41, 227,  47, 132, 
-	83, 209,   0, 237,  32, 252, 177,  91, 106, 203, 190,  57,  74,  76,  88, 207, 
-	208, 239, 170, 251,  67,  77,  51, 133,  69, 249,   2, 127,  80,  60, 159, 168, 
-	81, 163,  64, 143, 146, 157,  56, 245, 188, 182, 218,  33,  16, 255, 243, 210, 
-	205,  12,  19, 236,  95, 151,  68,  23, 196, 167, 126,  61, 100,  93,  25, 115, 
-	96, 129,  79, 220,  34,  42, 144, 136,  70, 238, 184,  20, 222,  94,  11, 219, 
-	224,  50,  58,  10,  73,   6,  36,  92, 194, 211, 172,  98, 145, 149, 228, 121, 
-	231, 200,  55, 109, 141, 213,  78, 169, 108,  86, 244, 234, 101, 122, 174,   8, 
-	186, 120,  37,  46,  28, 166, 180, 198, 232, 221, 116,  31,  75, 189, 139, 138, 
-	112,  62, 181, 102,  72,   3, 246,  14,  97,  53,  87, 185, 134, 193,  29, 158, 
-	225, 248, 152,  17, 105, 217, 142, 148, 155,  30, 135, 233, 206,  85,  40, 223, 
-	140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,  22, 
-};
-
 word8 Sbox[256] = {
 	99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171, 118, 
 	202, 130, 201, 125, 250,  89,  71, 240, 173, 212, 162, 175, 156, 164, 114, 192, 
@@ -118,17 +93,6 @@ word8 Sbox[256] = {
 
 
 /* Local Function Prototyptes */
-void BigSubWords(hashState *state);
-void BigShiftRows(hashState *state);
-void BigMixColumns(hashState *state);
-void BigFinal(hashState *state);
-void Pad(hashState *state);
-void SubByte(word8 a[4][4]);
-void ShiftRows(word8 a[4][4]);
-void MixColumns(word8 a[4][4]);
-void aes(word8 a[4][4], word8 k[4][4]);
-void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d);
-
 
 __kernel int Hash(                                                       
 					__global unsigned int *hashbitlen_in,
@@ -673,8 +637,118 @@ __kernel int Hash(
 									state->k1[1][0] = (state->counter_lo >> 8);
 									state->k1[2][0] = (state->counter_lo >> 16);
 									state->k1[3][0] = (state->counter_lo >> 24);
-									aes(state->tab[i][j], state->k1);
-									aes(state->tab[i][j], state->k2);
+									// aes(state->tab[i][j], state->k1);
+									// void aes(word8 a[4][4], word8 k[4][4])
+									{
+										// SubByte(state->tab[i][j]);
+										// void SubByte(word8 a[4][4])
+										 int tmpi=i,tmpj=j;
+										{
+											/* Replace every byte of the input by the byte at that place
+											 * in the nonlinear S-box.
+											 */
+											int i, j;
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) 
+													state->tab[tmpi][tmpj][i][j] = Sbox[state->tab[tmpi][tmpj][i][j]] ;
+										}
+										// ShiftRows(state->tab[i][j]);
+										// void ShiftRows(word8 a[4][4]) 
+										{
+											/* Row 0 remains unchanged
+											 * The other three rows are shifted a variable amount
+											 */
+											word8 tmp[4];
+											int i, j;
+
+											for(i = 1; i < 4; i++) {
+												for(j = 0; j < 4; j++) 
+													tmp[j] = state->tab[tmpi][tmpj][i][(j + i) % 4];
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = tmp[j];
+											}
+										}
+										// MixColumns(state->tab[i][j]);
+										// void MixColumns(word8 a[4][4]) 
+										{
+											/* Mix the four bytes of every column in a linear way	 */
+											word8 b[4][4];
+											int i, j;
+											for(j = 0; j < 4; j++)
+												for(i = 0; i < 4; i++)
+													b[i][j] = mul(2,state->tab[tmpi][tmpj][i][j])
+													^ mul(3,state->tab[tmpi][tmpj][(i + 1) % 4][j])
+													^ state->tab[tmpi][tmpj][(i + 2) % 4][j]
+													^ state->tab[tmpi][tmpj][(i + 3) % 4][j];
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = b[i][j];
+										}
+										// AddRoundKey(state->tab[i][j],state->k1);
+										// void AddRoundKey(word8 a[4][4], word8 k[4][4])
+										{
+											/* Exor corresponding text input and key input bytes*/
+											int i, j;
+											for(i = 0; i < 4; i++)
+										   		for(j = 0; j < 4; j++) {
+													state->tab[tmpi][tmpj][i][j] ^= (state->k1)[i][j];
+												}
+										}
+									}
+									// aes(state->tab[i][j], state->k2);
+									// void aes(word8 a[4][4], word8 k[4][4])
+									{
+										// SubByte(state->tab[i][j]);
+										// void SubByte(word8 a[4][4])
+										int tmpi=i,tmpj=j;
+										{
+											/* Replace every byte of the input by the byte at that place
+											 * in the nonlinear S-box.
+											 */
+											int i, j;
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) 
+													state->tab[tmpi][tmpj][i][j] = Sbox[state->tab[tmpi][tmpj][i][j]] ;
+										}
+										// ShiftRows(state->tab[i][j]);
+										// void ShiftRows(word8 a[4][4]) 
+										{
+											/* Row 0 remains unchanged
+											 * The other three rows are shifted a variable amount
+											 */
+											word8 tmp[4];
+											int i, j;
+
+											for(i = 1; i < 4; i++) {
+												for(j = 0; j < 4; j++) 
+													tmp[j] = state->tab[tmpi][tmpj][i][(j + i) % 4];
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = tmp[j];
+											}
+										}
+										// MixColumns(state->tab[i][j]);
+										// void MixColumns(word8 a[4][4]) 
+										{
+											/* Mix the four bytes of every column in a linear way	 */
+											word8 b[4][4];
+											int i, j;
+											for(j = 0; j < 4; j++)
+												for(i = 0; i < 4; i++)
+													b[i][j] = mul(2,state->tab[tmpi][tmpj][i][j])
+													^ mul(3,state->tab[tmpi][tmpj][(i + 1) % 4][j])
+													^ state->tab[tmpi][tmpj][(i + 2) % 4][j]
+													^ state->tab[tmpi][tmpj][(i + 3) % 4][j];
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = b[i][j];
+										}
+										// AddRoundKey(state->tab[i][j],state->k2);
+										// void AddRoundKey(word8 a[4][4], word8 k[4][4])
+										{
+											/* Exor corresponding text input and key input bytes*/
+											int i, j;
+											for(i = 0; i < 4; i++)
+										   		for(j = 0; j < 4; j++) {
+													state->tab[tmpi][tmpj][i][j] ^= (state->k2)[i][j];
+												}
+										}
+									}
 									state->counter_lo++;
 									if (state->counter_lo == 0)
 									{
@@ -891,8 +965,118 @@ __kernel int Hash(
 								state->k1[1][0] = (state->counter_lo >> 8);
 								state->k1[2][0] = (state->counter_lo >> 16);
 								state->k1[3][0] = (state->counter_lo >> 24);
-								aes(state->tab[i][j], state->k1);
-								aes(state->tab[i][j], state->k2);
+									// aes(state->tab[i][j], state->k1);
+									// void aes(word8 a[4][4], word8 k[4][4])
+									{
+										// SubByte(state->tab[i][j]);
+										// void SubByte(word8 a[4][4])
+										 int tmpi=i,tmpj=j;
+										{
+											/* Replace every byte of the input by the byte at that place
+											 * in the nonlinear S-box.
+											 */
+											int i, j;
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) 
+													state->tab[tmpi][tmpj][i][j] = Sbox[state->tab[tmpi][tmpj][i][j]] ;
+										}
+										// ShiftRows(state->tab[i][j]);
+										// void ShiftRows(word8 a[4][4]) 
+										{
+											/* Row 0 remains unchanged
+											 * The other three rows are shifted a variable amount
+											 */
+											word8 tmp[4];
+											int i, j;
+
+											for(i = 1; i < 4; i++) {
+												for(j = 0; j < 4; j++) 
+													tmp[j] = state->tab[tmpi][tmpj][i][(j + i) % 4];
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = tmp[j];
+											}
+										}
+										// MixColumns(state->tab[i][j]);
+										// void MixColumns(word8 a[4][4]) 
+										{
+											/* Mix the four bytes of every column in a linear way	 */
+											word8 b[4][4];
+											int i, j;
+											for(j = 0; j < 4; j++)
+												for(i = 0; i < 4; i++)
+													b[i][j] = mul(2,state->tab[tmpi][tmpj][i][j])
+													^ mul(3,state->tab[tmpi][tmpj][(i + 1) % 4][j])
+													^ state->tab[tmpi][tmpj][(i + 2) % 4][j]
+													^ state->tab[tmpi][tmpj][(i + 3) % 4][j];
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = b[i][j];
+										}
+										// AddRoundKey(state->tab[i][j],state->k1);
+										// void AddRoundKey(word8 a[4][4], word8 k[4][4])
+										{
+											/* Exor corresponding text input and key input bytes*/
+											int i, j;
+											for(i = 0; i < 4; i++)
+										   		for(j = 0; j < 4; j++) {
+													state->tab[tmpi][tmpj][i][j] ^= (state->k1)[i][j];
+												}
+										}
+									}
+									// aes(state->tab[i][j], state->k2);
+									// void aes(word8 a[4][4], word8 k[4][4])
+									{
+										// SubByte(state->tab[i][j]);
+										// void SubByte(word8 a[4][4])
+										int tmpi=i,tmpj=j;
+										{
+											/* Replace every byte of the input by the byte at that place
+											 * in the nonlinear S-box.
+											 */
+											int i, j;
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) 
+													state->tab[tmpi][tmpj][i][j] = Sbox[state->tab[tmpi][tmpj][i][j]] ;
+										}
+										// ShiftRows(state->tab[i][j]);
+										// void ShiftRows(word8 a[4][4]) 
+										{
+											/* Row 0 remains unchanged
+											 * The other three rows are shifted a variable amount
+											 */
+											word8 tmp[4];
+											int i, j;
+
+											for(i = 1; i < 4; i++) {
+												for(j = 0; j < 4; j++) 
+													tmp[j] = state->tab[tmpi][tmpj][i][(j + i) % 4];
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = tmp[j];
+											}
+										}
+										// MixColumns(state->tab[i][j]);
+										// void MixColumns(word8 a[4][4]) 
+										{
+											/* Mix the four bytes of every column in a linear way	 */
+											word8 b[4][4];
+											int i, j;
+											for(j = 0; j < 4; j++)
+												for(i = 0; i < 4; i++)
+													b[i][j] = mul(2,state->tab[tmpi][tmpj][i][j])
+													^ mul(3,state->tab[tmpi][tmpj][(i + 1) % 4][j])
+													^ state->tab[tmpi][tmpj][(i + 2) % 4][j]
+													^ state->tab[tmpi][tmpj][(i + 3) % 4][j];
+											for(i = 0; i < 4; i++)
+												for(j = 0; j < 4; j++) state->tab[tmpi][tmpj][i][j] = b[i][j];
+										}
+										// AddRoundKey(state->tab[i][j],state->k2);
+										// void AddRoundKey(word8 a[4][4], word8 k[4][4])
+										{
+											/* Exor corresponding text input and key input bytes*/
+											int i, j;
+											for(i = 0; i < 4; i++)
+										   		for(j = 0; j < 4; j++) {
+													state->tab[tmpi][tmpj][i][j] ^= (state->k2)[i][j];
+												}
+										}
+									}
 								state->counter_lo++;
 								if (state->counter_lo == 0)
 								{
@@ -1058,60 +1242,3 @@ word8 mul(word8 a, word8 b) {
 	if (a && b) return Alogtable[(Logtable[a] + Logtable[b])%255];
 	else return 0;
 }
-
-void AddRoundKey(word8 a[4][4], word8 k[4][4]) 
-{
-	/* Exor corresponding text input and key input bytes
-	 */
-	int i, j;
-	
-	for(i = 0; i < 4; i++)
-   		for(j = 0; j < 4; j++) a[i][j] ^= k[i][j];
-}
-
-void ShiftRows(word8 a[4][4]) {
-	/* Row 0 remains unchanged
-	 * The other three rows are shifted a variable amount
-	 */
-	word8 tmp[4];
-	int i, j;
-	
-	for(i = 1; i < 4; i++) {
-		for(j = 0; j < 4; j++) 
-			tmp[j] = a[i][(j + i) % 4];
-		for(j = 0; j < 4; j++) a[i][j] = tmp[j];
-	}
-}
-
-void SubByte(word8 a[4][4]) {
-	/* Replace every byte of the input by the byte at that place
-	 * in the nonlinear S-box.
-	 */
-	int i, j;
-	
-	for(i = 0; i < 4; i++)
-		for(j = 0; j < 4; j++) a[i][j] = S[a[i][j]] ;
-}
-
-void MixColumns(word8 a[4][4]) {
-	/* Mix the four bytes of every column in a linear way	 */
-	word8 b[4][4];
-	int i, j;
-	
-	for(j = 0; j < 4; j++)
-		for(i = 0; i < 4; i++)
-			b[i][j] = mul(2,a[i][j])
-			^ mul(3,a[(i + 1) % 4][j])
-			^ a[(i + 2) % 4][j]
-			^ a[(i + 3) % 4][j];
-	for(i = 0; i < 4; i++)
-		for(j = 0; j < 4; j++) a[i][j] = b[i][j];
-}
-
-									void aes(word8 a[4][4], word8 k[4][4])
-									{
-										SubByte(a);
-										ShiftRows(a);
-										MixColumns(a);
-										AddRoundKey(a,k);
-									}
