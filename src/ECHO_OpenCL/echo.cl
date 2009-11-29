@@ -199,7 +199,7 @@ __kernel int Hash(
 		state->k2[1][3] = 0;
 		state->k2[2][3] = 0;
 		state->k2[3][3] = 0;
-	    state->Computed   = 0;
+	    state->Computed = 0;
 		S=SUCCESS;
 	}
 	if(S != SUCCESS) {
@@ -248,7 +248,6 @@ __kernel int Hash(
 				state->messlenlo += (int) databitlen;
 				databitlen = 0;
 			}
-
 
 			if (state->index == 256)
 			{
