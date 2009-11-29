@@ -22,7 +22,7 @@ hashval_buf     = cl.Buffer(ctx, cl.mem_flags.WRITE_ONLY, size=hashval.size)
 evt = prg.Hash(queue, (1,), hashbitlen_buf, data_buf, databitlen_buf, hashval_buf)
 cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
-#print "%lu ns" % (evt.profile.end - evt.profile.start)
+print "%lu ns" % (evt.profile.end - evt.profile.start)
 
 hashval_hex = ""
 
