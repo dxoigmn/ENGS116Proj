@@ -95,163 +95,20 @@ word8 Sbox[256] = {
 /* Local Function Prototyptes */
 
 __kernel int Hash(                                                       
-<<<<<<< HEAD
-					__global unsigned int *hashbitlen,
-					__global char* data,                                 
-					__global unsigned int *databitlen,             
-=======
 					__global unsigned int *hashbitlen_in,
 					__global char* data,                                 
-					__global unsigned int *databitlen_in,             
->>>>>>> flattened
+					__global unsigned int *databitlen_in,
 					__global char* hashval,
 					__global int *output                                            
 ){
 	int i = get_global_id(0);
 	HashReturn S;
-<<<<<<< HEAD
-	hashState state;
-	S = Init(&state, *hashbitlen);
-	if(S != SUCCESS) {
-		*output= S;
-		return S;
-	}
-	S = Update(&state, (BitSequence const *)data, *databitlen);
-	if(S != SUCCESS){
-		*output= S;
-		return S;
-	}
-	*output= Final(&state,(BitSequence *)hashval);
-	return output;                        
-}
-
-
-word8 mul(word8 a, word8 b) {
-	/* multiply two elements of GF(2^m)
-	 * needed for MixColumn and InvMixColumn
-	 */
-	if (a && b) return Alogtable[(Logtable[a] + Logtable[b])%255];
-	else return 0;
-}
-
-void AddRoundKey(word8 a[4][4], word8 k[4][4]) {
-	/* Exor corresponding text input and key input bytes
-	 */
-	int i, j;
-	
-	for(i = 0; i < 4; i++)
-   		for(j = 0; j < 4; j++) a[i][j] ^= k[i][j];
-}
-
-void ShiftRows(word8 a[4][4]) {
-	/* Row 0 remains unchanged
-	 * The other three rows are shifted a variable amount
-	 */
-	word8 tmp[4];
-	int i, j;
-	
-	for(i = 1; i < 4; i++) {
-		for(j = 0; j < 4; j++) 
-			tmp[j] = a[i][(j + i) % 4];
-		for(j = 0; j < 4; j++) a[i][j] = tmp[j];
-	}
-}
-
-void SubByte(word8 a[4][4]) {
-	/* Replace every byte of the input by the byte at that place
-	 * in the nonlinear S-box.
-	 */
-	int i, j;
-	
-	for(i = 0; i < 4; i++)
-		for(j = 0; j < 4; j++) a[i][j] = S[a[i][j]] ;
-}
-
-void MixColumns(word8 a[4][4]) {
-	/* Mix the four bytes of every column in a linear way	 */
-	word8 b[4][4];
-	int i, j;
-	
-	for(j = 0; j < 4; j++)
-		for(i = 0; i < 4; i++)
-			b[i][j] = mul(2,a[i][j])
-			^ mul(3,a[(i + 1) % 4][j])
-			^ a[(i + 2) % 4][j]
-			^ a[(i + 3) % 4][j];
-	for(i = 0; i < 4; i++)
-		for(j = 0; j < 4; j++) a[i][j] = b[i][j];
-}
-
-void aes(word8 a[4][4], word8 k[4][4])
-{
-	SubByte(a);
-	ShiftRows(a);
-	MixColumns(a);
-	AddRoundKey(a,k);
-}
-
-void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d) 
-{
-	/* Mix four bytes in a linear way */
-	word8 aa, bb, cc, dd;
-	
-	aa = mul(2,*a)^mul(3,*b)^(*c)^(*d);
-	bb = mul(2,*b)^mul(3,*c)^(*d)^(*a);
-	cc = mul(2,*c)^mul(3,*d)^(*a)^(*b);
-	dd = mul(2,*d)^mul(3,*a)^(*b)^(*c);
-	*a = aa;
-	*b = bb;
-	*c = cc;
-	*d = dd;
-}
-
-#ifdef TRACE
-void SetLevelTrace(int level)
-{
-	level_trace = level;
-}
-
-#endif
-void Push(hashState *state, word8 a)
-{
-	* state->Addresses[state->index++] = a;
-}
-
-word8 Pop(hashState *state)
-{
-	return * state->Addresses[state->index++];
-}
-
-word8* Stack(hashState *state)
-{
-	return state->Addresses[state->index];
-}
-
-HashReturn Init(hashState *state, int hashbitlen)
-{
-	int i,j,k,l,m;
-    if (!state)
-    {
-        return STATE_NULL;
-    }
-	if((hashbitlen >= 128) && (hashbitlen <= 512))
-	{
-		state->hashbitlen = hashbitlen;
-	} 
-	else
-	{
-		return BAD_HASHBITLEN;
-	}
-	m = 0;
-	for(j=0; j<4; j++) // big col
-=======
 	hashState state_real;
 	hashState *state = &state_real;
 	unsigned int hashbitlen=*hashbitlen_in;
 	unsigned int databitlen=*databitlen_in;
 	// S = Init(&state, *hashbitlen);
 	// HashReturn Init(hashState *state, int hashbitlen)
->>>>>>> flattened
 	{
 		int i,j,k,l,m;
 	    if (!state)
