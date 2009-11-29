@@ -2,7 +2,7 @@ typedef unsigned char		word8;
 typedef unsigned short		word16;	
 typedef unsigned long		word32;
 typedef unsigned char BitSequence;
-typedef unsigned long long DataLength;
+typedef unsigned int DataLength;
 typedef enum { 
 	SUCCESS=0
 	,FAIL=1
@@ -122,20 +122,209 @@ void aes(word8 a[4][4], word8 k[4][4]);
 void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d);
 
 __kernel int Hash(                                                       
-					__global unsigned int hashbitlen,
+					__global unsigned int *hashbitlen_in,
 					__global char* data,                                 
-					__global unsigned int databitlen,             
+					__global unsigned int *databitlen_in,             
 					__global char* hashval,
-					__global int output                                            
+					__global int *output                                            
 ){
 	int i = get_global_id(0);
 	HashReturn S;
-	hashState state;
-	S = Init(&state, hashbitlen);
-	if(S != SUCCESS) return S;
-	S = Update(&state, (BitSequence const *)data, databitlen);
-	if(S != SUCCESS) return S;
-	output= Final(&state,(BitSequence *)hashval);
+	hashState state_real;
+	hashState *state = &state_real;
+	unsigned int hashbitlen=*hashbitlen_in;
+	unsigned int databitlen=*databitlen_in;
+	// S = Init(&state, *hashbitlen);
+	// HashReturn Init(hashState *state, int hashbitlen)
+	{
+		int i,j,k,l,m;
+	    if (!state)
+	    {
+	        return STATE_NULL;
+	    }
+		if((hashbitlen >= 128) && (hashbitlen <= 512))
+		{
+			state->hashbitlen = hashbitlen;
+		} 
+		else
+		{
+			return BAD_HASHBITLEN;
+		}
+		m = 0;
+		for(j=0; j<4; j++) // big col
+		{
+			for(i=0; i<4; i++) // big row
+			{
+				for(l=0; l<4; l++) //col
+				{
+					for(k=0; k<4; k++) // row
+					{
+						state->tab[i][j][k][l] = 0;
+						state->Addresses[m++] = & state->tab[i][j][k][l];
+					}
+				}
+			}
+		}
+
+		if(hashbitlen > 256)
+		{
+			state->cv_size = 1024;
+			state->message_size = 1024;
+			state->rounds = 10;
+		}
+		else 
+		{
+			state->cv_size = 512;
+			state->message_size = 1536;
+			state->rounds = 8;
+		}	
+		for (j=0; j<state->cv_size/512; j++) //big col
+		{
+			for(i=0; i<4; i++) //big row
+			{
+				state->tab[i][j][0][0] = hashbitlen;
+				state->tab[i][j][1][0] = hashbitlen>>8;
+			}
+		}
+		state->index = state->cv_size/8;
+		state->bit_index = 0;
+		state->messlenhi = 0;
+		state->messlenlo = 0;
+		//counter low 64 bits
+		state->k1[0][0] = 0;
+		state->k1[1][0] = 0;
+		state->k1[2][0] = 0;
+		state->k1[3][0] = 0;
+		state->k1[0][1] = 0;
+		state->k1[1][1] = 0;
+		state->k1[2][1] = 0;
+		state->k1[3][1] = 0;
+		//counter high 64 bits
+		state->k1[0][2] = 0;
+		state->k1[1][2] = 0;
+		state->k1[2][2] = 0;
+		state->k1[3][2] = 0;
+		state->k1[0][3] = 0;
+		state->k1[1][3] = 0;
+		state->k1[2][3] = 0;
+		state->k1[3][3] = 0;
+		//salt low 64 bits
+		state->k2[0][0] = 0;
+		state->k2[1][0] = 0;
+		state->k2[2][0] = 0;
+		state->k2[3][0] = 0;
+		state->k2[0][1] = 0;
+		state->k2[1][1] = 0;
+		state->k2[2][1] = 0;
+		state->k2[3][1] = 0;
+		//salt high 64 bits
+		state->k2[0][2] = 0;
+		state->k2[1][2] = 0;
+		state->k2[2][2] = 0;
+		state->k2[3][2] = 0;
+		state->k2[0][3] = 0;
+		state->k2[1][3] = 0;
+		state->k2[2][3] = 0;
+		state->k2[3][3] = 0;
+	    state->Computed   = 0;
+		S=SUCCESS;
+	}
+	if(S != SUCCESS) {
+		*output= S;
+		return S;
+	}
+	// S = Update(&state, (BitSequence const *)data, *databitlen);
+	// HashReturn Update(hashState *state, const BitSequence *data,
+	// 				  DataLength databitlen)
+	{
+		if (!databitlen)
+		{
+			return SUCCESS;
+		}
+	    if (!state || !data)
+	    {
+	        return STATE_NULL;
+	    }
+		if (state->bit_index)
+		{
+			return FAIL;
+		}
+	    if (state->Computed)
+	    {
+	        return FAIL;
+	    }
+		while(databitlen)
+		{
+			//read data byte
+			Push(state, *data++);
+			if (databitlen>=8)
+			{
+				databitlen -=8;
+				state->messlenlo += 8;
+				if (state->messlenlo == 0)
+				{
+					state->messlenhi ++;
+				}
+			}
+			else
+			{
+				//length non multiple of 8
+				state->bit_index = (int) databitlen;
+				state->index--;
+				state->messlenlo += (int) databitlen;
+				databitlen = 0;
+			}
+
+
+			if (state->index == 256)
+			{
+				//block completed
+				Compress(state);
+				state->index = state->cv_size/8;
+			}
+		}
+		S= SUCCESS;
+	}
+	if(S != SUCCESS){
+		*output= S;
+		return S;
+	}
+	// *output= Final(&state,(BitSequence *)hashval);
+	// HashReturn Final(hashState *state, BitSequence *hashval)
+	{
+		int i;
+		word8 MASK_AND[8] = 
+		{                                                                                                                                                          
+			0xFF, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE
+		};
+	    if (!state)
+	    {
+	        return STATE_NULL;
+	    }
+	    if (state->Computed)
+	    {
+			return FAIL;
+		}
+
+		Pad(state);
+		/* output truncated hash value */
+		state->index = 0;
+		for(i=0; i<((state->hashbitlen + 7)/8); i++)
+		{
+			hashval[i] = Pop(state);
+		}
+		//last byte truncation
+		hashval[i-1] &= MASK_AND[state->hashbitlen % 8];
+		//clean up
+		state->index = 0;
+		for (i=0; i<256; i++)
+		{
+			Push(state, 0);
+		}
+		state->Computed = 1;
+		S= SUCCESS;
+	}
+	*output=S;
 	return output;                        
 }
 
