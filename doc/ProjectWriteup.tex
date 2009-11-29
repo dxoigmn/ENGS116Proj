@@ -5,10 +5,19 @@
  
 \title{ENGS 116 Project Proposal}
 \author{Gabe Stocco and Cory Cornelius}
- 
+
 \begin{document}
- 
 \maketitle
+\begin{abstract}
+In November of 2007, the National Institute for Standards and Technology (NIST) announced the request for submission of candidate algorithms for the Secure Hash Algorithm 3 (SHA-3).
+Because of recent attacks against the current standards, NIST ``decided that it is prudent to develop a new hash algorithm to augment and revise FIPS 180‚Äì2'' \cite{Sha3Request}.
+
+As the second round of candidates were recently chosen in September, we decided to choose few of these second-round candidates--CubeHash \cite{CubeHash}, Skein \cite{Skein}, and ECHO \cite{ECHO}--and see if it is feasible to implement them in a GPU computing architecture.
+In particular, we chose use to implement them in Open Computing Language (OpenCL), which provides a framework for executing ``kernels'' on a variety of devices (e.g., CPUs, GPUs, etc.).
+
+% FIXME: Add summary of findings.
+
+\end{abstract}
  
 \section*{Introduction}
 Hash functions are a critical tool in computer security.
@@ -25,14 +34,9 @@ As a result of these developments the National Institute of Standards and Techno
 NIST is running this competition similarly to how they ran the competition for the new Advanced Encryption Standard (AES).
 In particular, while a proposed algorithm might be stronger than every other proposed algorithm, the algorithm is useless if it takes a long time to execute.
 Thus there is a requirement, as there similarly was in the AES competition, for the authors of the algorithm to provide documentation on the computational efficiency of the algorithm.
-NIST will analyze ``each submission’s optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
+NIST will analyze ``each submission's optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
 Since computational efficiency will be an important part of the decision in choosing SHA-3 some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.
 
-\section*{Algorithms}
-We chose to implement SHA1 in OpenCL as well as a number of NIST hash competitors.
-\subsection*{ECHO}
-ECHO was chosen because it is largely based on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard.  ECHO provides a number of inherent advantages due to its design based on the AES block cipher.  In particular, upcoming Intel chips starting with the Nehalem/Westmere core will have built in AES hardware support - allowing for three times faster operation.\cite{Westmere}  Additionally, ECHO should be as secure as AES, because it has no other arbitrary number other than those used in the S-boxes for AES.
-ECHO 
 
 \section*{Approach}
 Because we are not skilled cryptographers and others are already analyzing these algorithms \cite{Sha3Zoo}, we will instead explore the runtime speed of a subset of the round 2 SHA-3 candidates.
@@ -44,20 +48,56 @@ Our hypothesis is that some of these algorithms will benefit from parallel execu
 Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
 Our reference machine will be a Mac Pro with an ATI Radeon HD 4870.
  
-\section*{Plan}
-\begin{description}
-  \item[Week 1] Learn and experiment with OpenCL/CUDA APIs.
-  \item[Week 2-3] Implement algorithms such that they comply with the test vectors as specified by the authors.
-  \item[Week 4] Evaluate the runtime of our implementations as compared to the reference implementations on a CPU. Prepare project presentation and report.
-\end{description}
  
+\section*{Algorithms}
+We chose to implement SHA1 in OpenCL as well as a number of NIST hash competitors.
+
+\subsection*{ECHO}
+ECHO was chosen because it is largely based on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard.
+ECHO provides a number of inherent advantages due to its design based on the AES block cipher
+In particular, upcoming Intel chips starting with the Nehalem/Westmere core will have built in AES hardware support - allowing for three times faster operation.\cite{Westmere}
+Additionally, ECHO should be as secure as AES, because it has no other arbitrary number other than those used in the S-boxes for AES.
+
+\subsection*{CubeHash}
+
+CubeHash is perhaps the simplest SHA-3 candidate and, as such, as garnered significant attention.
+CubeHash can be parameterized on the number of rounds $r$, the number of bytes per block $b$, and the number of output bits $h$.
+For our tests, we chose $r=8$, $b=1$, and $h=512$ primarily because these were the recommended parameters specified by the author \cite{CubeHash-spec}.
+
+\subsection*{Skein}
+
+
+
+\section*{Implementation}
+
+\subsection*{Echo}
+
+\subsection*{CubeHash}
+
+\subsection*{Skein}
+
+
+\section*{Evaluation}
+
+\subsection*{Echo}
+
+\subsection*{CubeHash}
+
+\subsection*{Skein}
+
+\section*{Conclusion}
+
 \begin{thebibliography}{9}
-  \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA–3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
+  \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHA√ê3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
   \bibitem{Nostradamus} Marc Stevens, Arjen K. Lenstra, Benne de Weger. ``Predicting the winner of the 2008 US Presidential Elections using a Sony PlayStation 3.'' November 30, 2007. Available at \url{http://www.win.tue.nl/hashclash/Nostradamus/}
   \bibitem{Sha1Collisions} Xaoyun Wang, Yiqun Lisa Yin, Hongbo Yu. ``Finding Collisions in the Full SHA-1.'' Lecture Notes in Computer Science, Vol. 3621 (November 2005), pp. 17-36
   \bibitem{Sha3Zoo} ``The SHA-3 Zoo.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/The_SHA-3_Zoo}
   \bibitem{Sha3Hardware} ``SHA-3 Hardware Implementations.'' Available at \url{http://ehash.iaik.tugraz.at/wiki/SHA-3_Hardware_Implementations}
-\bibitem{Westmere} ``Intel Nehalem (microarchitecture).'' Available at \url{http://en.wikipedia.org/wiki/Intel_Westmere}
- \end{thebibliography}
+  \bibitem{Westmere} ``Intel Nehalem (microarchitecture).'' Available at \url{http://en.wikipedia.org/wiki/Intel_Westmere}
+  \bibitem{CubeHash} ``CubeHash: a simple hash function.'' Available at \url{http://cubehash.cr.yp.to/}
+  \bibitem{CubeHash-spec} Bernstein, Daniel J. ``CubeHash specification (2.B.1).'' Available at \url{http://cubehash.cr.yp.to/submission/spec.pdf}.
+  \bibitem{Skein} ``The Skein Hash Function Family.'' Available at \url{http://www.skein-hash.info/} and \url{http://www.schneier.com/skein.html}
+  \bibitem{ECHO} ``ECHO Hash Function.'' Available at \url{http://crypto.rd.francetelecom.com/echo/}
+\end{thebibliography}
 
 \end{document}
