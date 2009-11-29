@@ -2,7 +2,7 @@ typedef unsigned char		word8;
 typedef unsigned short		word16;	
 typedef unsigned long		word32;
 typedef unsigned char BitSequence;
-typedef unsigned long long DataLength;
+typedef unsigned int DataLength;
 typedef enum { 
 	SUCCESS=0
 	,FAIL=1
@@ -122,20 +122,26 @@ void aes(word8 a[4][4], word8 k[4][4]);
 void Mix4bytes(word8 *a, word8 *b, word8 *c, word8 *d);
 
 __kernel int Hash(                                                       
-					__global unsigned int hashbitlen,
+					__global unsigned int *hashbitlen,
 					__global char* data,                                 
-					__global unsigned int databitlen,             
+					__global unsigned int *databitlen,             
 					__global char* hashval,
-					__global int output                                            
+					__global int *output                                            
 ){
 	int i = get_global_id(0);
 	HashReturn S;
 	hashState state;
-	S = Init(&state, hashbitlen);
-	if(S != SUCCESS) return S;
-	S = Update(&state, (BitSequence const *)data, databitlen);
-	if(S != SUCCESS) return S;
-	output= Final(&state,(BitSequence *)hashval);
+	S = Init(&state, *hashbitlen);
+	if(S != SUCCESS) {
+		*output= S;
+		return S;
+	}
+	S = Update(&state, (BitSequence const *)data, *databitlen);
+	if(S != SUCCESS){
+		*output= S;
+		return S;
+	}
+	*output= Final(&state,(BitSequence *)hashval);
 	return output;                        
 }
 
