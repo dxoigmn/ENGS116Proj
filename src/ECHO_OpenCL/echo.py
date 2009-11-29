@@ -5,13 +5,13 @@ import numpy as np
 import sys
  
 src = open('echo.cl', 'r').read()
-ctx = cl.Context(dev_type=cl.device_type.GPU)
+ctx = cl.Context(dev_type=cl.device_type.CPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg = cl.Program(ctx, src).build()
  
 output = np.empty(1, dtype=np.int8)
 hashbitlen = 512
-data = "abc"
+data = "whatthehellisamonkeydoingthere?"
 databitlen = len(data) * 8
 hashval = np.empty(hashbitlen/8, dtype=np.uint8)
 
