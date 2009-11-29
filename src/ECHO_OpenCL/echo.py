@@ -11,7 +11,7 @@ prg = cl.Program(ctx, src).build()
  
 output = np.empty(1, dtype=np.int8)
 hashbitlen = 512
-data = "whatthehellisamonkeydoingthere?"
+data = "whyisthereamonkeyhere?"
 databitlen = len(data) * 8
 hashval = np.empty(hashbitlen/8, dtype=np.uint8)
 
