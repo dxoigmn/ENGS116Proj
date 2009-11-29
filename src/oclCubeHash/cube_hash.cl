@@ -1,10 +1,6 @@
 #define CUBEHASH_ROUNDS 8
 #define CUBEHASH_BLOCKBYTES 1
-
-unsigned int ROTATE(unsigned int a, int b)
-{
-  return (((a) << (b)) | ((a) >> (32 - b)));
-}
+#define ROTATE(a,b) (((a) << (b)) | ((a) >> (32 - b)))
 
 static void transform(unsigned int *x)
 {
