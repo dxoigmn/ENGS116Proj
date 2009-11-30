@@ -10,6 +10,8 @@ We chose the 8,192 byte size because preliminary testing showed that it was a su
 
 \subsection*{Results}
 
+We describe the results of our experiments below.
+
 \begin{figure}[p]
 \includegraphics[width=\textwidth]{../data/sha3_times_ati.pdf}
 \caption{Runtime in nanoseconds versus message length in bytes for various SHA-3 Candidates and the SHA1 hash algorithm standard on an ATI Graphics Card and CPU.}\label{fig:sha3_times_ati}
@@ -36,13 +38,15 @@ We chose the 8,192 byte size because preliminary testing showed that it was a su
 \end{figure}
 
 \subsubsection*{CubeHash}
-The first thing that you should know about CubeHash is that the reference implementation is  slow - really slow.
-The Daniel Bernstein, creator of CubeHash acknowledged this publicly\cite{Bernstein} and suggested a tweak to the `formal' implementation to speed up the algorithm by a factor of about 16.
-The formal CubeHash algorithm runs 8 rounds of CubeHash for single byte in the input data. For our test suite (64 byte increments to 8192 bytes 10 times) this would result in 41,943,040 rounds being performed.
+The first thing that you should know about CubeHash is that the reference implementation is  slow--really slow.
+The creator of CubeHash acknowledged this publicly\cite{Bernstein} and suggested a tweak to the `formal' implementation to speed up the algorithm by a factor of about 16.
+The formal CubeHash algorithm runs 8 rounds for single byte in the input data. For our test suite (64 byte increments to 8192 bytes 10 times) this would result in 41,943,040 rounds being performed.
 
-Bernstein's recommended solution is use 16 rounds for each 32 bytes - additionally decided to run only 5 trials to average for CubeHash.
+Bernstein's recommended solution is use 16 rounds for each 32 byte.
+Additionally we decided to run only 5 trials to average for CubeHash.
 With these changes we only have to perform 1,310,720 rounds.
-Using the reduced computation version of CubeHash the GPU completed computation in only 137 seconds - it would have taken about 2.5 hours to complete the full computations on the full CubeHash algorithm.
+Using the reduced computation version of CubeHash the GPU completed computation in only 137 seconds.
+It would have taken about 2.5 hours to complete the full computations on the full CubeHash algorithm.
 
 \subsubsection*{Echo}
 Echo was the only algorithm which showed that it could run faster on a GPU than the baseline CPU.  In the test with the ATI graphics card, Echo performed about ten times better on the GPU than the CPU.
