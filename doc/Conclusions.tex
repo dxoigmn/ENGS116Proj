@@ -2,9 +2,13 @@
 
 We can conclude from this study that if only speed is taken into account, the Skein algorithm wins hands down.
 Even though ECHO was able to run faster on the Radeon than any other algorithm, it is still much slower than Skein on the CPU.
-Additionally, we can conclude that even with the enhanced speed version CubeHash is just too slow to take seriously when compared with the extreme speed of Skein on the CPU and the possibility of a GPU enhanced hash function which also benefits from hardware acceleration in new CPUs with ECHO.
+Additionally, we can conclude that even with the enhanced speed version CubeHash is just too slow to take seriously when compared with the extreme speed of Skein on the CPU and the possibility of a GPU enhanced ECHO that might benefit from hardware acceleration in new CPUs.
 
-About OpenCL we can conclude that it is not yet ready for production use.
-Even between three video cards specifically supported by Apple's implementation of OpenCL (the ATI Radeon 4870, the NVIDIA GeForce 8800 GT and the NVIDIA GeForce 9400M) these hash functions performed in drastically different ways.
-We also learned that a kernel run on a CPU can often perform in drastically different ways than the same kernel run on a GPU - which seems to run counter to the very purpose of OpenCL.
-With a little more polish OpenCL can certainly prove to be a very powerful tool for quickly implementing programs which are able to run on both traditional hardware at speeds approaching their theoretical maximum (see: Skein) while at the same time maintaining the ability to run on GPU hardware when the situation calls for it and it is available.
+With respect to OpenCL, we can conclude that it is not quite ready for general use.
+It is laborious to work with with little tools to help a programmer.
+Indeed any kind of exploitation of parallelism is still left up to the programmer.
+That is, GPUs will not magically speed up your algorithm; in fact, it might even slow them down as we have seen.
+
+Furthermore, between the three video cards specifically supported by Apple's implementation of OpenCL (the ATI Radeon 4870, the NVIDIA GeForce 8800 GT and the NVIDIA GeForce 9400M) these hash functions performed in drastically different ways.
+We also learned that a kernel run on a CPU can often perform in drastically different ways than the same kernel run on a GPU--which seems to run counter to the very purpose of OpenCL.
+With a little more polish OpenCL can certainly prove to be a very powerful tool for quickly implementing programs which are able to run on both traditional hardware at speeds approaching their theoretical maximum (see: Skein), while at the same time maintaining the ability to run on GPU hardware when the situation calls for it and it is available.
