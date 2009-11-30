@@ -46,7 +46,9 @@ While the each of these algorithms already have general purpose implementations 
 There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
 Our hypothesis is that some of these algorithms will benefit from parallel execution while others may not.
 Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
-Our reference machine will be a Mac Pro an ATI Radeon HD 4870.
+Our reference machine will be a Mac Pro with an ATI Radeon HD 4870 512MB. 
+We also needed to use a NVIDIA 8800 GT 512MB because of incompatibilities (discussed later) between some hash functions and the ATI card.  
+Our development machines were MacBook Pros with an NVIDIA 9400M 256MB and a NVIDIA 8600M GT 128MB
  
  
 \section*{Algorithms}
@@ -66,8 +68,9 @@ In addition to receiving performance enhancements from any AES optimizations bui
 Preliminary results from researchers have demonstrated up to a 2\cite{Harrison}-20x\cite{Manavski}  increase in encryption rate throughput by using the GPU as a encryption co-processor.
 However, there is good reason to doubt the 20x figure as it appears that it was achieved through a naive implementation of AES using Electronic Code Book (ECB) mode.
 Unlike more secure encryption modes, ECB mode encrypts data in finite sized chunks allowing for easy data parallelization.  
-However, ECB mode is largely insecure for many use cases.\cite{CodeBook}
-The only parameter to specify is the hashlength - we chose 512 bits for our tests.
+However, ECB mode is largely insecure for many use cases.\cite{CodeBook}\\
+
+ECHO runs 8 rounds, each round consisting of 2 AES rounds.  Additionally, it uses a ShiftRows similar to AES but on 128 bit words, and AES MixColumns on 4-tuples. The only parameter to specify is the hashlength - we chose a default hashlength of 512 bits for our tests, but also ran a test with varied hash length to compare against CubeHash.
 
 \subsection*{Skein}
 
@@ -87,13 +90,38 @@ We chose to base our OpenCL implementation on the reference implementation, figu
 
 \section*{Evaluation}
 
+\subsection*{Test Machine Specifications}
+Mac Pro 2x2.26 Xeon `Nehalem'.
+12 GB RAM
+ATI Radeon 4870 512MB
+NVIDIA GeForce 8800 512MB
+
+\subsection*{Methodology}
+Each algorithm was run 5 times on both the CPU and the NVIDIA GPU using data ranging in size from 1 byte ($2^0$) to 1,048,576 bytes ($2^{20}$) by powers of 2.
+Skein was the only algorithm which ran properly on the ATI card so was tested by itself on that configuration.
+Additionally, CubeHash and Echo were the only algorithms which allowed arbitrary hash bit length, and were tested for speed vs. hash bit length for a fixed data size of 32 bytes.
+32 bytes was chosen because CubeHash and Echo performed nearly identically for a 32 byte data input using a 512 bit hash in the original tests.
+
 \subsection*{CubeHash}
 
 \subsection*{Echo}
+ECHO was possibly the most troublesome of the algorithms to implement - never successfully running on the ATI card.  
+When we attempted to run ECHO on ATI card it would lock up the entire system requiring a hard shutdown. 
+However, when run with the NVIDIA 8800 it would run without issue.
+ECHO proved particularly difficult to code in OpenCL in particular, the S-boxes and multiplication constants caused a number of issues when running the code on a GPU in particular, while they would run without issue on the CPU.
 
 \subsection*{Skein}
+Skein was by far the fastest algorithm tested.
+It was the only algorithm able to run the full 1,048,576 byte data set on the GPU - though it was only able to do this on the Radeon and not the GeForce card which the other algorithms ran better on.
 
-\section*{Conclusion}
+\section*{Conclusions}
+
+We can conclude from this study that if only speed is taken into account, no matter your hardware configuration you should choose the Skein algorithm.
+About OpenCL we can conclude that it is not yet ready for production use.
+Even across two video cards specifically supported by Apple's implementation of OpenCL these hash functions performed in drastically different ways.
+Additionally, a kernel run on a CPU can often perform in drastically different ways than the same kernel run on a GPU.
+
+
 
 \begin{thebibliography}{9}
   \bibitem{Sha3Request} ``Announcing Request for Candidate Algorithm Nominations for a New Cryptographic Hash Algorithm (SHAÐ3) Family.'' Federal Registrar, Vol. 72, No. 212 (November 2007), pp. 62212-62220. Available at \url{http://csrc.nist.gov/groups/ST/hash/documents/FR_Notice_Nov07.pdf}.
