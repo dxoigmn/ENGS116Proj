@@ -27,18 +27,18 @@ CubeHash's optimized reference implementation was relatively simple to get worki
 However, because it was the first SHA-3 algorithm we implemented to work on OpenCL we learned a lot about how we should structure our code.
 
 In the beginning we decided to create one monolithic {\tt Hash} function that contained all the necessary logic to return a hash for an arbitrary message.
-This proved to be inefficient because as the messages became large because we had to allocate exactly as many bytes on the device as the length of the message.
-We immediately noticed that most of our algorithms could not run beyond 16KB which happened to be the local memory size.
+This proved to be inefficient because as the messages became large, we had to allocate exactly as many bytes on the device as the length of the message.
+We immediately noticed that most of our algorithms could not run beyond 16KB which happened to be the local memory size of the GPU.
 
-Thus we decided to change our implementations to use the standard {\tt Init}, {\tt Update} and {\tt Final} functions to support large messages.
+Thus we decided to change our implementations to use the standard {\tt Init}, {\tt Update} and {\tt Final} functions in order to support large messages.
 With this design we would only have to maintain a fixed amount of bytes for the algorithm's state along with a fixed amount of bytes for the input to the {\tt Update} function.
-By splitting up the message into smaller parts, we could sequentially feed them to {\tt Update}.
+By splitting up the message into smaller parts, we could sequentially feed them to the {\tt Update} function.
 Once we fed all of the messages, we could call {\tt Final} to get the hash of the entire message.
-This proved to be effective and allowed us to hash larger messages than without previous monolithic function.
+This proved to be effective and allowed us to hash larger messages than the previous monolithic function.
 
 \subsection*{Echo}
 
-As part of the submissions materials to the NIST competition the ECHO team submitted a 32 bit optimized version, a 64-bit optimized version and a reference implementation.  
+As part of the submissions materials to the NIST competition the ECHO team submitted a 32-bit optimized version, a 64-bit optimized version and a reference implementation.  
 We chose to base our OpenCL implementation on the reference implementation, hoping that it would be the most likely to work with little modification.
 As it turned out the Echo function required a good deal of work to get to work.
 We began the debugging process by flattening all the functions into the kernel to avoid any issues with pointer passing causing data to not be written back to the global buffers.
@@ -56,11 +56,11 @@ It was particularly difficult to spot the error because the program behaved diff
 
 For Skein, we took their submitted reference implementation and modified it to work on the OpenCL framework.
 Skein has perhaps the ``ugliest'' implementation out of all the algorithms we chose primarily because it is heavily optimized.
-In fact, Skein has several different implementations depending on the required internal state: 256, 512, 1024 bits.
-Because we decided to limit our hash lengths to 512-bits it made sense to use the 512-bit implementation.
+In fact, Skein has several different implementations depending on the required internal state: 256, 512, or 1024 bits.
+Because we decided to limit our hash lengths to 512 bits it made sense to use the 512-bit implementation.
 
-The primary difficult in getting Skein running had to due with it's internal representation of the state.
-Unlike most of the other algorithms, Skein chose to optimize for 64-bit systems and therefore all words are 64-bit.
+The primary difficulty in getting Skein running had to due with it's internal representation of the state.
+Unlike most of the other algorithms, Skein chose to optimize for 64-bit systems and therefore all words are 64 bits.
 On the face of things this doesn't seem like a bad decision considering the current migration to 64-bit is well underway.
 However, we encountered a peculiarity in the way OpenCL works on the graphics cards we were testing.
 In particular, it was difficult to get a 64-bit {\tt Rotate} operation working since the OpenCL provided function {\tt rotate} did not want to compile when the rotation was greater than 54.
