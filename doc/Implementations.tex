@@ -6,27 +6,28 @@ Specific implementation details and roadblocks encountered follow.
 
 \subsection*{SHA-1 \& OpenCL}
 
-As a reference, we decided to implement a current NIST standard, SHA-1 so that we could get some familiarity with the OpenCL framework.
+As a reference, we decided to implement a current NIST standard, SHA-1, so that we could get some familiarity with the OpenCL framework.
 SHA-1 is a reasonably straight forward algorithm with many reference implementations floating around.
 We took one and modified it to work in the OpenCL framework.
 
 Not surprisingly, even though OpenCL is a variant of C99, modifying code to run on OpenCL devices is difficult.
 As far as we know, there are no debuggers and getting output when running on the GPU is difficult as there are no facilities for logging.
-We thus had to resort to reading buffers with specially crafted debug output in so that we could compare the state of the algorithms to the reference state on the CPU.
+We thus had to resort to reading buffers with specially crafted debug output so that we could compare the state of the algorithms to the reference state on the CPU.
 
 Often times our implementations simply would not build for the target platform without any indication as to why.
-We often had to resort to commenting out large sections of code until it will build and slowly trying the offending line of code.
-Mostly, the problem had to do with pieces of code accessing regions of memory that they were not supposed to.
-OpenCL's memory model consists of private, local and global; and a region of memory can only access that region it has be specified for.
+We often had to resort to commenting out large sections of code until it would build, slowly trying to find the offending line of code.
+Typically the problem had to do with a piece of code accessing regions of memory that they were not supposed to.
+OpenCL's memory model consists of private, local and global regions, thus a region of memory can only access the scope it has be specified for.
 Thus a region marked global cannot be accessed by a private variable.
-Getting code to compile was difficult enough, but getting to run on the GPU when it would run fine on the CPU was an even more laborious process.
+Getting code to compile was difficult enough, but getting to run on the GPU when it would run fine on the CPU was a laborious task.
 
 \subsection*{CubeHash}
 
 CubeHash's optimized reference implementation was relatively simple to get working in OpenCL.
-However, because this was the first SHA-3 algorithm we implemented to work on OpenCL we learned a lot about how we should structure our code.
+However, because it was the first SHA-3 algorithm we implemented to work on OpenCL we learned a lot about how we should structure our code.
+
 In the beginning we decided to create one monolithic {\tt Hash} function that contained all the necessary logic to return a hash for an arbitrary message.
-This proved to be inefficient when the messages started becoming large because we had to allocate exactly as many bytes on the device as the length of the message.
+This proved to be inefficient because as the messages became large because we had to allocate exactly as many bytes on the device as the length of the message.
 We immediately noticed that most of our algorithms could not run beyond 16KB which happened to be the local memory size.
 
 Thus we decided to change our implementations to use the standard {\tt Init}, {\tt Update} and {\tt Final} functions to support large messages.

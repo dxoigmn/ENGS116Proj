@@ -1,11 +1,9 @@
 \section*{Approach}
 Because we are not skilled cryptographers and others are already analyzing these algorithms \cite{Sha3Zoo}, we will instead explore the implementation feasibility and runtime speed of a subset of the round 2 SHA-3 candidates.
 We plan to evaluate the implementation feasibility and computational efficiency of the following SHA-3 candidates: Skein, CubeHash and Echo.
-We choose Skein and CubeHash primarily based on the popularity of the authors in the cryptographic community, and we choose Echo because it is based upon AES.
-While the each of these algorithms already have general purpose implementations we plan to implement them for execution on a GPU using the OpenCL framework.
-There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
+We chose Skein and CubeHash primarily based on the popularity of the authors in the cryptographic community, and we chose Echo because it is based upon AES.
+While each of these algorithms already have general purpose implementations, we plan to implement them for execution on a GPU using the OpenCL framework.
+
+There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
 Our hypothesis is that some of these algorithms might benefit from parallel execution while others may not.
 Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
-Our reference machine was a Mac Pro with an ATI Radeon HD 4870 512MB.
-We also used an NVIDIA 8800 GT 512MB because of incompatibilities (discussed later) between our initial implementations of some hash functions and the ATI card.
-Our development machines were MacBook Pros with an NVIDIA 9400M 256MB and a NVIDIA 8600M GT 128MB.

@@ -1,11 +1,7 @@
 \section*{Evaluation}
-
-\subsection*{Test Machine Specifications}
-\begin{verbatim}
-Base: Apple Mac Pro w/ 2 x 2.26 Xeon `Nehalem' core w/ 12 GB RAM
-Setup 1: ATI Radeon 4870 512MB
-Setup 2: NVIDIA GeForce 8800 512MB
-\end{verbatim}
+We evaluated the algorithms on a Mac Pro with an ATI Radeon HD 4870 512MB graphics card and an Intel Xeon 2.26Ghz CPU.
+We also used an NVIDIA 8800 GT 512MB to see how well OpenCL performed on a variety of hardware.
+Our development machines were MacBook Pros with an NVIDIA 9400M 256MB and a NVIDIA 8600M GT 128MB.
 
 \subsection*{Methodology}
 Each algorithm was run either 10 times on both the CPU, the NVIDIA GPU and the ATI GPU using data ranging in size from 0 bytes to 8,192 bytes by increments of 64 bytes.
@@ -19,22 +15,22 @@ We chose the 8,192 byte size because preliminary testing showed that it was a su
 \caption{Runtime in nanoseconds versus message length in bytes for various SHA-3 Candidates and the SHA1 hash algorithm standard on an ATI Graphics Card and CPU.}\label{fig:sha3_times_ati}
 \end{figure}
 
-\begin{figure}[htp]
+\begin{figure}[p]
 \includegraphics[width=\textwidth]{../data/sha3_times_ati_logo.pdf}
 \caption{Runtime in nanoseconds versus message length in bytes of various SHA-3 Candidates on an ATI graphics card. Shown on a logarithmic scale to show linear growth with message length.}\label{fig:ati_logo}
 \end{figure}
 
-\begin{figure}[htp]
+\begin{figure}[p]
 \includegraphics[width=\textwidth]{../data/sha3_times_nvidia.pdf}
 \caption{Runtime in nanoseconds versus message length in bytes for various SHA-3 Candidates on an NVIDIA Graphics Card and CPU. The SHA1 algorithm would not run on the NVIDIA card.}\label{fig:sha3_times_nvidia}
 \end{figure}
 
-\begin{figure}[htp]
+\begin{figure}[p]
 \includegraphics[width=\textwidth]{../data/sha3_times_both.pdf}
 \caption{Runtime in nanoseconds versus message length in bytes of various SHA-3 Candidates and SHA1 on an NVIDIA Graphics Card and ATI graphics card. The SHA1 algorithm would not run on the NVIDIA card.}\label{fig:sha3_times_both}
 \end{figure}
 
-\begin{figure}[htp]
+\begin{figure}[p]
 \includegraphics[width=\textwidth]{../data/cube_vs_echo.pdf}
 \caption{Runtime in nanoseconds versus hash length in bits for CubeHash and ECHO.  You can see ECHO become significantly slower when the hash length reaches 256 or more bits while CubeHash maintains the same speed.  This is because ECHO has a 256 bit internal state, while CubeHash has a 1,024 bit internal state.}\label{fig:cube_vs_echo}
 \end{figure}
@@ -49,11 +45,17 @@ With these changes we only have to perform 1,310,720 rounds.
 Using the reduced computation version of CubeHash the GPU completed computation in only 137 seconds - it would have taken about 2.5 hours to complete the full computations on the full CubeHash algorithm.
 
 \subsubsection*{Echo}
-Echo ran at a maximum of 1675.7 ns/byte on the CPU and 354162.5 ns/byte on the GPU.
-This translates to 741.5 clocks/byte on the CPU (at 2.26 Ghz) and 590,270 clocks/byte on the GPU (at 600 Mhz).
+Echo was the only algorithm which showed that it could run faster on a GPU than the baseline CPU.  In the test with the ATI graphics card, Echo performed about ten times better on the GPU than the CPU.
+This is a very exciting result, showing that there is reason to beleive that GPUs can be a useful tool when performing cryptographic functions.
+However, this result should be taken with a grain of salt - while the actual run times as reported by the OpenCL profile timer are faster for the ATI GPU than the CPU, this result runs counter to all of the other data points we collected.
+That said, we were skeptical of the results at first, and reran the test suite 3 additional times, receiving the same results each time.
+However, despite the runtimes being significantly faster on the GPU than the CPU, the overall runtime for the test suite when overhead is taken into account was about 5 times slower than the CPU version.
+
+Interestingly, this trend reversed itself on the NVIDIA GPU where ECHO is over 100 times slower.
 
 \subsubsection*{Skein}
-Skein was by far the fastest algorithm tested.
-It was the only algorithm able to run the full 1,048,576 byte data set on the GPU - though it was only able to do this on the Radeon and not the GeForce card which the other algorithms ran better on.
+Skein was designed for speed and it shows.
+Skein was by far the fastest algorithm tested in almost all cases - especially if only CPU results were taken into account - even with the OpenCL overhead it comes close to the theoretical speed claimed by the authors.
+While the Skein algorithm is slower when run on the GPU than most of the other algorithms, for the average user the Skein algorithm is likely the best option - most people do not have a Radeon 4870 in their computer, and so GPU acceleration is unlikely to help them regardless of the hash function they are running.
 
-Skein ran at 7.8 clocks/byte (17.67 ns/byte) on the CPU, 27.8\% more than the claimed 6.1 clocks/byte and 6,626.1 clocks/byte (3975.65 ns/byte) on the GPU.
+Preliminary testing showed that Skein ran at 7.8 clocks/byte (17.67 ns/byte) on the CPU, 27.8\% more than the claimed 6.1 clocks/byte and 6,626.1 clocks/byte (3975.65 ns/byte) on the GPU.

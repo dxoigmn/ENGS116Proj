@@ -10,8 +10,7 @@ CubeHash can be parameterized on the number of rounds $r$, the number of bytes p
 For our tests, we chose $r=16$, $b=32$, and $h=512$ primarily because these were the recommended parameters specified by the author~\cite{CubeHash-spec}.
 
 Internally, CubeHash maintains a 1024-bit state that is transformed $r$ times every $b$ bytes.
-The transformation is simply a series of additions, swaps, rotations, and xors, thus making it easy to verify.
-To output a hash, the internal state is truncated to the desired number of bits.
+To output a hash, the internal state is truncated to the desired number of bits $h$.
 Thus, the runtimes for different $h$s should be relatively similar.
 The authors of the algorithms estimate their algorithm can run 20 cycles/byte on the NIST reference platform for the parameters specified above~\cite{Bernstein}.
 
@@ -39,9 +38,9 @@ The only parameter to specify for ECHO is the hash length - we chose a length of
 
 Skein was designed by Niels Ferguson and Bruce Schneier--big names in the cryptography and security community.
 Skein is based on the Threefish block cipher and supports internal block sizes of 256, 512 or 1024 bits and runs in 72 or 80 rounds.
-Skein allows for arbitrary digest size, was designed for 64 bit processors and speed was a primary consideration of the design.
+Skein allows for arbitrary hash size and was designed for 64-bit processors with speed being a primary consideration of the design.
 According to the authors, Skein can run at 6.1 cycles/byte on a Core 2 Duo in 64 bit mode~\cite{SkeinSpeed}.
-This means, in theory, that Skein can run faster than even SHA-1 or SHA-2 while providing much greater security.
+This means, in theory, that Skein can run faster than SHA-1 or SHA-2 while providing much greater security.
 Skein also has a number of optional features or alternate implementation modes which can allow for use as a ``a PRNG, a stream cipher, a key derivation function, authentication without the overhead of HMAC''\cite{SkeinSpeed}.
-It also has an optional hash-tree mode for increasing parallel execution speed, however there is not yet an implementation of this mode. 
+It also has an optional hash-tree mode for increasing parallel execution speed, however there is no implementation of this mode. 
 
