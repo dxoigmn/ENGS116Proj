@@ -6,6 +6,6 @@ While the each of these algorithms already have general purpose implementations 
 There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
 Our hypothesis is that some of these algorithms might benefit from parallel execution while others may not.
 Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
-Our reference machine will be a Mac Pro with an ATI Radeon HD 4870 512MB. 
-We also needed to use a NVIDIA 8800 GT 512MB because of incompatibilities (discussed later) between some hash functions and the ATI card.  
+Our reference machine was a Mac Pro with an ATI Radeon HD 4870 512MB.
+We also used an NVIDIA 8800 GT 512MB because of incompatibilities (discussed later) between our initial implementations of some hash functions and the ATI card.
 Our development machines were MacBook Pros with an NVIDIA 9400M 256MB and a NVIDIA 8600M GT 128MB.

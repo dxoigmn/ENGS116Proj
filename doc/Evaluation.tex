@@ -16,17 +16,18 @@ We chose the 8,192 byte size because preliminary testing showed that it was a su
 
 \begin{figure}[htp]
 \includegraphics[width=\textwidth]{../data/sha3_times_ati.pdf}
-\caption{Runtime versus message length of various SHA-3 Candidates and the SHA1 hash algorithm standard  on an ATI Graphics Card}\label{fig:sha3_times_ati}
+\caption{Runtime in nanoseconds versus message length in bytes for various SHA-3 Candidates and the SHA1 hash algorithm standard on an ATI Graphics Card and CPU.}\label{fig:sha3_times_ati}
 \end{figure}
-
-Figure~\ref{fig:sha3_times_ati} shows the runtime in nanoseconds versus the length of the message we fed to each algorithm. For each candidate algorithm we ran them on both the CPU and ATI-GPU.
 
 \begin{figure}[htp]
 \includegraphics[width=\textwidth]{../data/sha3_times_nvidia.pdf}
-\caption{Runtime versus message length of various SHA-3 Candidates on an NVIDIA Graphics Card. The SHA1 algorithm would not run on the NVIDIA card.}\label{fig:sha3_times_nvidia}
+\caption{Runtime in nanoseconds versus message length in bytes for various SHA-3 Candidates on an NVIDIA Graphics Card and CPU. The SHA1 algorithm would not run on the NVIDIA card.}\label{fig:sha3_times_nvidia}
 \end{figure}
 
-Figure~\ref{fig:sha3_times_nvidia} shows the runtime in nanoseconds versus the length of the message we fed to each candidate algorithm. For each candidate algorithm we ran them on both the CPU and NVIDIA-GPU.
+\begin{figure}[htp]
+\includegraphics[width=\textwidth]{../data/sha3_times_both.pdf}
+\caption{Runtime in nanoseconds versus message length in bytes of various SHA-3 Candidates and SHA1 on an NVIDIA Graphics Card and ATI graphics card. The SHA1 algorithm would not run on the NVIDIA card.}\label{fig:sha3_times_both}
+\end{figure}
 
 \subsubsection*{CubeHash}
 The first thing that you should know about CubeHash is that the reference implementation is  slow - really slow.

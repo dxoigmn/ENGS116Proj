@@ -1,7 +1,7 @@
 set terminal pdf font "Times-Roman,10" size 6in, 3in
 set autoscale
 set logscale y
-set title "SHA-3 Candidates on ATI Graphics Card"
+set title "SHA-3 Candidates on ATI Graphics Card and Intel 'Nehalem' CPU"
 set xlabel "Message Size (bytes)"
 set ylabel "Time (ns)"
 set key outside
