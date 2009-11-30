@@ -1,9 +1,29 @@
 \section*{Implementation}
 
-For each hash function we established a standard model for implementation: each hash function has internal Init, Update and Final function.
-Each of these functions was converted to an OpenCL kernel we wrote a wrapper in Python using the PyOpenCL library to implement our evaluation methodology.  Specific implementation details and roadblocks encountered follow.
+For each hash function we established a standard model for implementation: each hash function has internal Init, Update, and Final function.
+Each of these functions was converted to an OpenCL kernel we wrote a wrapper in Python using the PyOpenCL library to implement our evaluation methodology.
+Specific implementation details and roadblocks encountered follow.
+
+\subsection*{SHA-1 \& OpenCL}
+
+As a reference, we decided to implement a current NIST standard, SHA-1 so that we could get some familiarity with the OpenCL framework.
+SHA-1 is a reasonably straight forward algorithm with many reference implementations floating around.
+We took one and modified it to work in the OpenCL framework.
+
+Not surprisingly, even though OpenCL is a variant of C99, modifying code to run on OpenCL devices is difficult.
+As far as we know, there are no debuggers and getting output when running on the GPU is difficult as there are no facilities for logging.
+We thus had to resort to reading buffers with specially crafted debug output in so that we could compare the state of the algorithms to the reference state on the CPU.
+
+Often times our implementations simply would not build for the target platform without any indication as to why.
+We often had to resort to commenting out large sections of code until it will build and slowly trying the offending line of code.
+Mostly, the problem had to do with pieces of code accessing regions of memory that they were not supposed to.
+OpenCL's memory model consists of private, local and global; and a region of memory can only access that region it has be specified for.
+Thus a region marked global cannot be accessed by a private variable.
+Getting code to compile was difficult enough, but getting to run on the GPU when it would run fine on the CPU was an even more laborious process.
 
 \subsection*{CubeHash}
+
+
 
 \subsection*{Echo}
 
@@ -20,4 +40,5 @@ Finally, the largest problem turned out to the be the accessible scope of the S-
 Since the S-box was declared in the same file as the kernel we had assumed that it would be in the scope of the kernel and it would be stored in the local memory of the graphics card.
 As it turned out by declaring the S-box outside of the actual kernel it was not instantiating the S-box in the local memory of the graphics card and instead when we tried to access the values of the S-box we only got 0's back.
 It was particularly difficult to spot the error because the program behaved differently on the CPU and GPU - on the CPU it accessed the S-boxes as normal, but the GPU was unable to do the same until they were moved into the kernel.
+
 \subsection*{Skein}
