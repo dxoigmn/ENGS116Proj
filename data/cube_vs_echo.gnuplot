@@ -6,5 +6,5 @@ set ylabel "Time (ns)"
 set key outside
 set xr [128:512]
 
-plot  "./cubeVsecho/echo_gpu.dat" using 1:2 title 'ECHO (GPU-NVIDIA)', \
-      "./cubeVsecho/cube_gpu.dat" using 1:2 title 'CubeHash (GPU-NVIDIA)'
+plot  "./cubeVsecho/echo_gpu.dat" using 1:2 with linespoints title 'ECHO (GPU-NVIDIA)', \
+      "./cubeVsecho/cube_gpu.dat" using 1:2 with linespoints title 'CubeHash (GPU-NVIDIA)'

@@ -28,6 +28,7 @@ However, because this was the first SHA-3 algorithm we implemented to work on Op
 In the beginning we decided to create one monolithic {\tt Hash} function that contained all the necessary logic to return a hash for an arbitrary message.
 This proved to be inefficient when the messages started becoming large because we had to allocate exactly as many bytes on the device as the length of the message.
 We immediately noticed that most of our algorithms could not run beyond 16KB which happened to be the local memory size.
+
 Thus we decided to change our implementations to use the standard {\tt Init}, {\tt Update} and {\tt Final} functions to support large messages.
 With this design we would only have to maintain a fixed amount of bytes for the algorithm's state along with a fixed amount of bytes for the input to the {\tt Update} function.
 By splitting up the message into smaller parts, we could sequentially feed them to {\tt Update}.
@@ -51,3 +52,17 @@ As it turned out by declaring the S-box outside of the actual kernel it was not 
 It was particularly difficult to spot the error because the program behaved differently on the CPU and GPU - on the CPU it accessed the S-boxes as normal, but the GPU was unable to do the same until they were moved into the kernel.
 
 \subsection*{Skein}
+
+For Skein, we took their submitted reference implementation and modified it to work on the OpenCL framework.
+Skein has perhaps the ``ugliest'' implementation out of all the algorithms we chose primarily because it is heavily optimized.
+In fact, Skein has several different implementations depending on the required internal state: 256, 512, 1024 bits.
+Because we decided to limit our hash lengths to 512-bits it made sense to use the 512-bit implementation.
+
+The primary difficult in getting Skein running had to due with it's internal representation of the state.
+Unlike most of the other algorithms, Skein chose to optimize for 64-bit systems and therefore all words are 64-bit.
+On the face of things this doesn't seem like a bad decision considering the current migration to 64-bit is well underway.
+However, we encountered a peculiarity in the way OpenCL works on the graphics cards we were testing.
+In particular, it was difficult to get a 64-bit {\tt Rotate} operation working since the OpenCL provided function {\tt rotate} did not want to compile when the rotation was greater than 54.
+We are unsure of the reason for this but we needed a workaround.
+We ended up rewriting the {\tt Rotate} function to decompose the 64-bit words into 2 32-bit words and rotate these individually take care to account for overflow and such.
+The solution is quite simple but we wasted a considerably amount of time working on this platform bug.
