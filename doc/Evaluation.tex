@@ -8,6 +8,12 @@ Primary: NVIDIA GeForce 8800 512MB
 Secondary: ATI Radeon 4870 512MB
 \end{verbatim}
 
+
+\begin{figure}[tb]
+\includegraphics[width=\textwidth]{../data/sha3_times_ati.pdf}
+\caption{SHA-3 Candidates on an ATI Graphics Card}\label{fig:sha3_times_ati}
+\end{figure}
+
 \subsection*{Methodology}
 Each algorithm was run either 10 times on both the CPU, the NVIDIA GPU and the ATI GPU using data ranging in size from 0 bytes to 8,192 bytes by increments of 64 bytes.
 The 10 runs were then averaged to find the runtime of the algorithm on the GPUs and CPU.

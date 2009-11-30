@@ -1,4 +1,4 @@
-set terminal pdf font "Times-Roman,10" size 7in, 3in
+set terminal pdf font "Times-Roman,10" size 6in, 3in
 set autoscale
 set logscale y
 set title "SHA-3 Candidates on an ATI Graphics Card"
