@@ -10,23 +10,31 @@ queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_EN
 prg   = cl.Program(ctx, src).build()
 
 hashbitlen      = 512
-data            = "abc"
-databitlen      = len(data) * 8
 hashval         = np.empty(hashbitlen/8, dtype=np.uint8)
 
 hashbitlen_buf  = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=np.uint32(hashbitlen))
-data_buf        = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=np.char.array(data))
-databitlen_buf  = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=np.uint32(databitlen))
 hashval_buf     = cl.Buffer(ctx, cl.mem_flags.WRITE_ONLY, size=hashval.size)
 
-evt = prg.Hash(queue, (4,), hashbitlen_buf, data_buf, databitlen_buf, hashval_buf)
-cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
-print "%lu ns" % (evt.profile.end - evt.profile.start)
+datalen = 1
+while datalen <= 1000000:
+  print datalen
+  data            = "a" * datalen
+  databitlen      = len(data) * 8
 
-hashval_hex = ""
+  data_buf        = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=np.char.array(data))
+  databitlen_buf  = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST_PTR, hostbuf=np.uint32(databitlen))
 
-for i in xrange(0, hashval.size):
-  hashval_hex += "%02x" % hashval[i]
+  evt = prg.Hash(queue, (4,), hashbitlen_buf, data_buf, databitlen_buf, hashval_buf)
+  cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
-print hashval_hex
+  print "%lu ns" % (evt.profile.end - evt.profile.start)
+
+  hashval_hex = ""
+
+  for i in xrange(0, hashval.size):
+    hashval_hex += "%02x" % hashval[i]
+
+  print hashval_hex
+  
+  datalen         = datalen * 10
