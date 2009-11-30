@@ -1,6 +1,6 @@
 \section*{Implementation}
 
-For each hash function we established a standard model for implementation: each hash function has internal Init, Update, and Final function.
+For each hash function we established a standard model for implementation: each hash function has internal {\tt Init}, {\tt Update}, and {\tt Final} function.
 Each of these functions was converted to an OpenCL kernel we wrote a wrapper in Python using the PyOpenCL library to implement our evaluation methodology.
 Specific implementation details and roadblocks encountered follow.
 
@@ -23,7 +23,16 @@ Getting code to compile was difficult enough, but getting to run on the GPU when
 
 \subsection*{CubeHash}
 
-
+CubeHash's optimized reference implementation was relatively simple to get working in OpenCL.
+However, because this was the first SHA-3 algorithm we implemented to work on OpenCL we learned a lot about how we should structure our code.
+In the beginning we decided to create one monolithic {\tt Hash} function that contained all the necessary logic to return a hash for an arbitrary message.
+This proved to be inefficient when the messages started becoming large because we had to allocate exactly as many bytes on the device as the length of the message.
+We immediately noticed that most of our algorithms could not run beyond 16KB which happened to be the local memory size.
+Thus we decided to change our implementations to use the standard {\tt Init}, {\tt Update} and {\tt Final} functions to support large messages.
+With this design we would only have to maintain a fixed amount of bytes for the algorithm's state along with a fixed amount of bytes for the input to the {\tt Update} function.
+By splitting up the message into smaller parts, we could sequentially feed them to {\tt Update}.
+Once we fed all of the messages, we could call {\tt Final} to get the hash of the entire message.
+This proved to be effective and allowed us to hash larger messages than without previous monolithic function.
 
 \subsection*{Echo}
 
