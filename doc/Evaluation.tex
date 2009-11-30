@@ -8,18 +8,21 @@ Primary: NVIDIA GeForce 8800 512MB
 Secondary: ATI Radeon 4870 512MB
 \end{verbatim}
 
-
-\begin{figure}[tb]
-\includegraphics[width=\textwidth]{../data/sha3_times_ati.pdf}
-\caption{SHA-3 Candidates on an ATI Graphics Card}\label{fig:sha3_times_ati}
-\end{figure}
-
 \subsection*{Methodology}
 Each algorithm was run either 10 times on both the CPU, the NVIDIA GPU and the ATI GPU using data ranging in size from 0 bytes to 8,192 bytes by increments of 64 bytes.
 The 10 runs were then averaged to find the runtime of the algorithm on the GPUs and CPU.
 We chose the 8,192 byte size because preliminary testing showed that it was a sufficient data size that algorithm setup overhead could be ignored and the actual runtime of the algorithm in terms of seconds per byte became near constant.
 
-\subsection*{CubeHash}
+\subsection*{Results}
+
+\begin{figure}[htp]
+\includegraphics[width=\textwidth]{../data/sha3_times_ati.pdf}
+\caption{Runtime versus message length of various SHA-3 Candidates on an ATI Graphics Card}\label{fig:sha3_times_ati}
+\end{figure}
+
+Figure~\ref{fig:sha3_times_ati} shows the runtime in nanoseconds versus the length of the message we fed to each candidate algorithm. For each candidate algorithm we ran them on both the CPU and ATI-GPU.
+
+\subsubsection*{CubeHash}
 The first thing that you should know about CubeHash is that the reference implementation is  slow - really slow.
 The Daniel Bernstein, creator of CubeHash acknowledged this publicly\cite{Bernstein} and suggested a tweak to the `formal' implementation to speed up the algorithm by a factor of about 16.
 The formal CubeHash algorithm runs 8 rounds of CubeHash for single byte in the input data. For our test suite (64 byte increments to 8192 bytes 10 times) this would result in 41,943,040 rounds being performed.
@@ -28,11 +31,11 @@ Bernstein's recommended solution is use 16 rounds for each 32 bytes - additional
 With these changes we only have to perform 1,310,720 rounds.
 Using the reduced computation version of CubeHash the GPU completed computation in only 137 seconds - it would have taken about 2.5 hours to complete the full computations on the full CubeHash algorithm.
 
-\subsection*{Echo}
+\subsubsection*{Echo}
 Echo ran at a maximum of 1675.7 ns/byte on the CPU and 354162.5 ns/byte on the GPU.
 This translates to 741.5 clocks/byte on the CPU (at 2.26 Ghz) and 590,270 clocks/byte on the GPU (at 600 Mhz).
 
-\subsection*{Skein}
+\subsubsection*{Skein}
 Skein was by far the fastest algorithm tested.
 It was the only algorithm able to run the full 1,048,576 byte data set on the GPU - though it was only able to do this on the Radeon and not the GeForce card which the other algorithms ran better on.
 
