@@ -1,7 +1,6 @@
-
 \section*{Algorithms}
 We chose to implement SHA-1 in OpenCL as a baseline to see how well the NIST competitors have been able to include parallelism in their designs.
-Additionally, we implemented a subset of the current round 2 SHA-2 candidate algorithms: CubeHash, ECHO, and Skein algorithms.
+Additionally, we implemented a subset of the current round 2 SHA-3 candidate algorithms: the CubeHash, ECHO, and Skein algorithms.
 
 \subsection*{CubeHash}
 
@@ -21,15 +20,20 @@ ECHO was designed by the Crypto Research Group.
 ECHO is based largely on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard as an official federal government standard in the United States.
 ECHO provides a number of advantages over other hash functions in the competition because is built upon the AES block cipher.
 In particular, Intel chips starting with the current Nehalem core will have built in AES hardware support - allowing for three times faster operation than previous general purpose CPU chips.\cite{Westmere}
-In addition to receiving performance enhancements from any AES optimi(zations built into hardware, testing ECHO on a GPU should also give some indication of how effective running AES as a GPGPU program would be.
+In addition to receiving performance enhancements from any AES optimizations built into hardware, testing ECHO on a GPU should also give some indication of how effective running AES as a GPGPU program would be.
 Preliminary results from researchers have demonstrated up to a 2-20x increase in encryption rate throughput by using the GPU as a encryption co-processor~\cite{Harrison}, \cite{Manavski}.
 However, there is good reason to doubt the 20x figure as it appears that it was achieved through a naive implementation of AES using Electronic Code Book (ECB) mode.
 Unlike more secure encryption modes, ECB mode encrypts data in finite sized chunks allowing for easy data parallelization.  
-However, ECB mode is largely insecure for many use cases~\cite{CodeBook}.
+However, because this results in each portion of the ciphertext being encrypted independently of one another - ECB mode is largely insecure for many use cases~\cite{CodeBook}.
 
-ECHO runs 8 rounds, each round consisting of 2 AES rounds.
-Additionally, it uses a ShiftRows similar to AES but on 128 bit words, and AES MixColumns on 4-tuples.
-The only parameter to specify is the hash length --we chose a length of 512 bits for our tests---but also ran a test with varied hash length to compare against CubeHash.
+\begin{figure}[htp]
+\includegraphics[width=\textwidth]{../data/ECB.png}
+\caption{Encrypting any file with inherent structure - like a picture - demonstrates the weakness of ECB mode encryption.\cite{CodeBook}}\label{fig:ecb}
+\end{figure}
+
+ECHO runs 8 rounds, each round consists of 2 AES rounds.
+Additionally, ECHO uses a ShiftRows function similar to AES but on 128 bit words, and AES's MixColumns on 4-tuples.
+The only parameter to specify for ECHO is the hash length - we chose a length of 512 bits for our tests - but also ran a test with varied hash length to compare against CubeHash.
 
 \subsection*{Skein}
 
@@ -39,5 +43,5 @@ Skein allows for arbitrary digest size, was designed for 64 bit processors and s
 According to the authors, Skein can run at 6.1 cycles/byte on a Core 2 Duo in 64 bit mode~\cite{SkeinSpeed}.
 This means, in theory, that Skein can run faster than even SHA-1 or SHA-2 while providing much greater security.
 Skein also has a number of optional features or alternate implementation modes which can allow for use as a ``a PRNG, a stream cipher, a key derivation function, authentication without the overhead of HMAC''\cite{SkeinSpeed}.
-It also has an optional hash-tree mode for increasing parallel execution speed, however there is no implementation of this mode. 
+It also has an optional hash-tree mode for increasing parallel execution speed, however there is not yet an implementation of this mode. 
 
