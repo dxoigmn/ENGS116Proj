@@ -22,6 +22,13 @@ We chose the 8,192 byte size because preliminary testing showed that it was a su
 
 Figure~\ref{fig:sha3_times_ati} shows the runtime in nanoseconds versus the length of the message we fed to each candidate algorithm. For each candidate algorithm we ran them on both the CPU and ATI-GPU.
 
+\begin{figure}[htp]
+\includegraphics[width=\textwidth]{../data/sha3_times_nvidia.pdf}
+\caption{Runtime versus message length of various SHA-3 Candidates on an NVIDIA Graphics Card}\label{fig:sha3_times_nvidia}
+\end{figure}
+
+Figure~\ref{fig:sha3_times_nvidia} shows the runtime in nanoseconds versus the length of the message we fed to each candidate algorithm. For each candidate algorithm we ran them on both the CPU and NVIDIA-GPU.
+
 \subsubsection*{CubeHash}
 The first thing that you should know about CubeHash is that the reference implementation is  slow - really slow.
 The Daniel Bernstein, creator of CubeHash acknowledged this publicly\cite{Bernstein} and suggested a tweak to the `formal' implementation to speed up the algorithm by a factor of about 16.
