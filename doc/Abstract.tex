@@ -3,8 +3,8 @@ In November of 2007, the National Institute for Standards and Technology (NIST) 
 Because of recent attacks against the current standards, NIST ``decided that it is prudent to develop a new hash algorithm to augment and revise FIPS 180–2'' \cite{Sha3Request}.
 
 As the second round of candidates were recently chosen in September, we decided to choose few of these second-round candidates--CubeHash \cite{CubeHash}, Skein \cite{Skein}, and ECHO \cite{ECHO}--and see if it is feasible to implement them in a GPU computing architecture.
-In particular, we chose use to implement them in Open Computing Language (OpenCL), which provides a framework for executing ``kernels'' on a variety of devices (e.g., CPUs, GPUs, etc.).
+In particular, we chose to implement them in Open Computing Language (OpenCL), which provides a framework for executing ``kernels'' on a variety of devices (e.g., CPUs, GPUs, etc.).
 
-% FIXME: Add summary of findings.
-
+We found that the Skein algorithm is by far the fastest (comparable to SHA1) when run on a CPU.
+However, if your primary concern is speed on a GPU, the ECHO hash function's performance on a GPU is the best when compared with its performance on the CPU, as well as being the fastest by quite a bit on the ATI-GPU.
 \end{abstract}
