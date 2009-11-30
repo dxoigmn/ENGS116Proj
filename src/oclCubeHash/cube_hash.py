@@ -5,11 +5,11 @@ import numpy as np
 import sys
 
 src   = open('cube_hash_new.cl', 'r').read()
-ctx   = cl.Context(dev_type=cl.device_type.CPU)
+ctx   = cl.Context(dev_type=cl.device_type.GPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 
-interval=128
+interval=64
 maxi=8192
 runs=5
 datas=[]
