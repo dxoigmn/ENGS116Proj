@@ -12,7 +12,7 @@ for i in range(0,runs,1):
   datas.append([])
 
 src   = open('echo_new.cl', 'r').read()
-ctx   = cl.Context(dev_type=cl.device_type.GPU)
+ctx   = cl.Context(dev_type=cl.device_type.CPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 
@@ -40,6 +40,7 @@ state_buf       = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.ALLOC_HO
 
 for k in range(0, runs,1):
   for i in range(0, maxi+interval, interval):
+    # print "run %d i=%d" % (k,i)
     events  = []
     datalen = 0
 
@@ -55,6 +56,7 @@ for k in range(0, runs,1):
     cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
     datas[k].append(sum(evt.profile.end - evt.profile.start for evt in events))
+    # print sum(evt.profile.end - evt.profile.start for evt in events)
 
 for i in range(0, (maxi+interval)/interval, 1):
   time=0

@@ -54,6 +54,8 @@ for k in range(0, runs,1):
     # for i in xrange(0, hashval.size):
     #   hashval_hex += "%02x" % hashval[i]
     datas[k].append(sum(evt.profile.end - evt.profile.start for evt in events))
+    # print "%d\t%d" % (i,sum(evt.profile.end - evt.profile.start for evt in events))
+
 
 for i in range(0, (maxi+interval)/interval, 1):
   time=0
