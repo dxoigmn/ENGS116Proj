@@ -11,8 +11,8 @@ datas=[]
 for i in range(0,runs,1):
   datas.append([])
 
-src   = open('sha1_new.cl', 'r').read()
-ctx   = cl.Context(dev_type=cl.device_type.CPU)
+src   = open('sha1.cl', 'r').read()
+ctx   = cl.Context(dev_type=cl.device_type.GPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 
