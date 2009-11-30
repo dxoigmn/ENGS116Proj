@@ -10,8 +10,10 @@ queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_EN
 prg   = cl.Program(ctx, src).build()
 
 interval=64
-maxi=8192
-runs=10
+mult=2
+start=8192*2
+maxi=2**21
+runs=3
 datas=[]
 for i in range(0,runs,1):
   datas.append([])
@@ -34,7 +36,11 @@ x_buf           = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.ALLOC_HO
 t_buf           = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.ALLOC_HOST_PTR, size=8*2)
 
 for k in range(0, runs,1):
-  for i in range(0, maxi+interval, interval):
+  i=start
+	
+  # for i in range(0, maxi+interval, interval):
+  while(i<maxi):
+    print "run %d i=%d" % (k,i)
     events  = []
     datalen = 0
     rundata=[]
@@ -50,15 +56,17 @@ for k in range(0, runs,1):
     events[-1].wait()
     cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
-    # hashval_hex = ""
-    # for i in xrange(0, hashval.size):
-    #   hashval_hex += "%02x" % hashval[i]
     datas[k].append(sum(evt.profile.end - evt.profile.start for evt in events))
-    # print "%d\t%d" % (i,sum(evt.profile.end - evt.profile.start for evt in events))
+    i*=2
+    print sum(evt.profile.end - evt.profile.start for evt in events)
 
-
-for i in range(0, (maxi+interval)/interval, 1):
+i=start
+k=0
+while (i<maxi):
+# for i in range(0, (maxi+interval)/interval, 1):
   time=0
   for j in range(0, runs, 1):
-    time+=datas[j][i]
-  print "%d\t%lu" % (i*interval, time/runs)
+    time+=datas[j][k]
+  k+=1
+  print "%d\t%lu" % (i, time/runs)
+  i*=2

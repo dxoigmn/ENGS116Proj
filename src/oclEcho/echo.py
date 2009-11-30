@@ -5,8 +5,10 @@ import numpy as np
 import sys
 
 interval=64
-maxi=8192
-runs=10
+mult=2
+start=8192*2
+maxi=2**21
+runs=3
 datas=[]
 for i in range(0,runs,1):
   datas.append([])
@@ -39,8 +41,11 @@ databitlen_buf  = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST
 state_buf       = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.ALLOC_HOST_PTR, size=statesize)
 
 for k in range(0, runs,1):
-  for i in range(0, maxi+interval, interval):
-    # print "run %d i=%d" % (k,i)
+  i=start
+	
+  # for i in range(0, maxi+interval, interval):
+  while(i<maxi):
+    print "run %d i=%d" % (k,i)
     events  = []
     datalen = 0
 
@@ -56,10 +61,16 @@ for k in range(0, runs,1):
     cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
     datas[k].append(sum(evt.profile.end - evt.profile.start for evt in events))
-    # print sum(evt.profile.end - evt.profile.start for evt in events)
+    i*=2
+    print sum(evt.profile.end - evt.profile.start for evt in events)
 
-for i in range(0, (maxi+interval)/interval, 1):
+i=start
+k=0
+while (i<maxi):
+# for i in range(0, (maxi+interval)/interval, 1):
   time=0
   for j in range(0, runs, 1):
-    time+=datas[j][i]
-  print "%d\t%lu" % (i*interval, time/runs)
+    time+=datas[j][k]
+  k+=1
+  print "%d\t%lu" % (i, time/runs)
+  i*=2
