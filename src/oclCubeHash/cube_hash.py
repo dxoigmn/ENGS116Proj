@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 src   = open('cube_hash_new.cl', 'r').read()
-ctx   = cl.Context(dev_type=cl.device_type.GPU)
+ctx   = cl.Context(dev_type=cl.device_type.CPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 
