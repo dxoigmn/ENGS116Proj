@@ -46,17 +46,11 @@ While the each of these algorithms already have general purpose implementations 
 There is currently a wealth of information for FPGA and ASIC implementations of these algorithms, however we are unaware of OpenCL/CUDA implementations of any of the SHA-3 candidates \cite{Sha3Hardware}.
 Our hypothesis is that some of these algorithms will benefit from parallel execution while others may not.
 Thus, we will compare out runtime results on the GPU with runtime results on a CPU.
-Our reference machine will be a Mac Pro with an ATI Radeon HD 4870.
+Our reference machine will be a Mac Pro an ATI Radeon HD 4870.
  
  
 \section*{Algorithms}
-We chose to implement SHA1 in OpenCL as well as a number of NIST hash competitors.
-
-\subsection*{ECHO}
-ECHO was chosen because it is largely based on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard.
-ECHO provides a number of inherent advantages due to its design based on the AES block cipher
-In particular, upcoming Intel chips starting with the Nehalem/Westmere core will have built in AES hardware support - allowing for three times faster operation.\cite{Westmere}
-Additionally, ECHO should be as secure as AES, because it has no other arbitrary number other than those used in the S-boxes for AES.
+We chose to implement SHA1 in OpenCL as a baseline to see how well the NIST competitors have been able to include parallelism in their designs.  Additionally, we implemented the CubeHash, ECHO, and Skein algorithms.
 
 \subsection*{CubeHash}
 
@@ -64,24 +58,38 @@ CubeHash is perhaps the simplest SHA-3 candidate and, as such, as garnered signi
 CubeHash can be parameterized on the number of rounds $r$, the number of bytes per block $b$, and the number of output bits $h$.
 For our tests, we chose $r=8$, $b=1$, and $h=512$ primarily because these were the recommended parameters specified by the author \cite{CubeHash-spec}.
 
+\subsection*{ECHO}
+ECHO is based largely on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard as an official federal government standard in the United States.
+ECHO provides a number of advantages over other hash functions in the competition because is built upon the AES block cipher.
+In particular, Intel chips starting with the current Nehalem core will have built in AES hardware support - allowing for three times faster operation than previous general purpose CPU chips.\cite{Westmere}
+In addition to receiving performance enhancements from any AES optimizations built into hardware, testing ECHO on a GPU should also give some indication of how effective running AES as a GPGPU program would be.
+Preliminary results from researchers have demonstrated up to a 2\cite{Harrison}-20x\cite{Manavski}  increase in encryption rate throughput by using the GPU as a encryption co-processor.
+However, there is good reason to doubt the 20x figure as it appears that it was achieved through a naive implementation of AES using Electronic Code Book (ECB) mode.
+Unlike more secure encryption modes, ECB mode encrypts data in finite sized chunks allowing for easy data parallelization.  
+However, ECB mode is largely insecure for many use cases.\cite{CodeBook}
+The only parameter to specify is the hashlength - we chose 512 bits for our tests.
+
 \subsection*{Skein}
 
 
 
 \section*{Implementation}
 
+\subsection*{CubeHash}
+
 \subsection*{Echo}
 
-\subsection*{CubeHash}
+As part of the submissions materials to the NIST competition the ECHO team submitted a 32 bit optimized version, a 64-bit optimized version and a reference implementation.  
+We chose to base our OpenCL implementation on the reference implementation, figuring that it would be the most likely to work with little modification.
 
 \subsection*{Skein}
 
 
 \section*{Evaluation}
 
-\subsection*{Echo}
-
 \subsection*{CubeHash}
+
+\subsection*{Echo}
 
 \subsection*{Skein}
 
@@ -97,7 +105,10 @@ For our tests, we chose $r=8$, $b=1$, and $h=512$ primarily because these were t
   \bibitem{CubeHash} ``CubeHash: a simple hash function.'' Available at \url{http://cubehash.cr.yp.to/}
   \bibitem{CubeHash-spec} Bernstein, Daniel J. ``CubeHash specification (2.B.1).'' Available at \url{http://cubehash.cr.yp.to/submission/spec.pdf}.
   \bibitem{Skein} ``The Skein Hash Function Family.'' Available at \url{http://www.skein-hash.info/} and \url{http://www.schneier.com/skein.html}
-  \bibitem{ECHO} ``ECHO Hash Function.'' Available at \url{http://crypto.rd.francetelecom.com/echo/}
+  \bibitem{ECHO} ``ECHO Hash Function.'' Available at \url{http://crypto.rd.francetelecom.com/echo/}.
+  \bibitem{Harrison} Owen Harrison and John Waldron. ``AES Encryption Implementation and Analysis on Commodity Graphics Processing Units.'' Available at \url{https://www.cs.tcd.ie/~harrisoo/publications/AES_On_GPU.pdf}.
+  \bibitem{CodeBook} ``Block cipher modes of operation'' Available at \url{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}.
+  \bibitem{Manavski}
 \end{thebibliography}
 
 \end{document}
