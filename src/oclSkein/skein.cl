@@ -1,3 +1,8 @@
+/*
+  Modified by Cory Cornelius from submitted "reference" version of Skein 
+  by the Bruce Sheiner, et al. as located at <http://www.schneier.com/skein.html>
+*/
+
 /***********************************************************************
 **
 ** Implementation of the AHS API using the Skein hash function.
@@ -85,10 +90,8 @@
 #define SKEIN_CFG_STR_LEN       (4*8)
 
 //#define RotL_64(x,N) ((x << N) | (x >> (64-N)))
-//#define RotL_64(x,N) (rotate(x,N))
-//#define RotL_64(x,N) (x)
 
-ulong RotL_64(ulong x, uint N)
+static ulong RotL_64(ulong x, uint N)
 {
   uint hi = (x & 0xFFFFFFFF00000000) >> 32;
   uint lo = (x & 0x00000000FFFFFFFF);
@@ -107,361 +110,258 @@ ulong RotL_64(ulong x, uint N)
   return (hi_rot << 32) | lo_rot;
 }
 
-void Skein_512_Process_Block2(ulong *_X, ulong *_T, __global const uchar *blkPtr, uint blkCnt, uint byteCntAdd)
+void Skein_512_Process_Block(__global ulong *X, __global ulong *T, __global uchar *b, uint blkCnt, uint byteCntAdd)
 {
     uint  i,r,n;
     ulong  ts[3];                            /* key schedule: tweak */
     ulong  ks[SKEIN_512_STATE_WORDS+1];      /* key schedule: chaining vars */
-    ulong  X [SKEIN_512_STATE_WORDS];        /* local copy of vars */
+    ulong  X_ [SKEIN_512_STATE_WORDS];        /* local copy of vars */
     ulong  w [SKEIN_512_STATE_WORDS];        /* local copy of input block */
+    __global ulong *blkPtr = (__global ulong *)b;
 
     do  {
         /* this implementation only supports 2**64 input bytes (no carry out here) */
-        _T[0] += byteCntAdd;            /* update processed length */
+        T[0] += byteCntAdd;            /* update processed length */
 
         /* precompute the key schedule for this block */
         ks[SKEIN_512_STATE_WORDS] = SKEIN_KS_PARITY;
         for (i=0;i < SKEIN_512_STATE_WORDS; i++) {
-            ks[i]     = _X[i];
-            ks[SKEIN_512_STATE_WORDS] ^= _X[i];            /* compute overall parity */
+            ks[i]     = X[i];
+            ks[SKEIN_512_STATE_WORDS] ^= X[i];            /* compute overall parity */
         }
 
-        ts[0] = _T[0];
-        ts[1] = _T[1];
+        ts[0] = T[0];
+        ts[1] = T[1];
         ts[2] = ts[0] ^ ts[1];
 
         //Skein_Get64_LSB_First(w, blkPtr, SKEIN_512_STATE_WORDS); /* get input block in little-endian format */
         for (n=0;n<SKEIN_512_STATE_WORDS;n++) {
-            w[n] = ((ulong *)blkPtr)[n];
+            //w[n] = ((ulong *)blkPtr)[n];
+            w[n] = blkPtr[n];
         }
 
         for (i=0;i < SKEIN_512_STATE_WORDS; i++) {               /* do the first full key injection */
-            X[i]  = w[i] + ks[i];
+            X_[i]  = w[i] + ks[i];
         }
 
-        X[SKEIN_512_STATE_WORDS-3] += ts[0];
-        X[SKEIN_512_STATE_WORDS-2] += ts[1];
+        X_[SKEIN_512_STATE_WORDS-3] += ts[0];
+        X_[SKEIN_512_STATE_WORDS-2] += ts[1];
 
         for (r=1;r <= SKEIN_512_ROUNDS_TOTAL/8; r++) { /* unroll 8 rounds */
-            X[0] += X[1]; X[1] = RotL_64(X[1],46ul); X[1] ^= X[0];
-            X[2] += X[3]; X[3] = RotL_64(X[3],36ul); X[3] ^= X[2];
-            X[4] += X[5]; X[5] = RotL_64(X[5],19ul); X[5] ^= X[4];
-            X[6] += X[7]; X[7] = RotL_64(X[7],37ul); X[7] ^= X[6];
+            X_[0] += X_[1]; X_[1] = RotL_64(X_[1],46ul); X_[1] ^= X_[0];
+            X_[2] += X_[3]; X_[3] = RotL_64(X_[3],36ul); X_[3] ^= X_[2];
+            X_[4] += X_[5]; X_[5] = RotL_64(X_[5],19ul); X_[5] ^= X_[4];
+            X_[6] += X_[7]; X_[7] = RotL_64(X_[7],37ul); X_[7] ^= X_[6];
 
-            X[2] += X[1]; X[1] = RotL_64(X[1],33ul); X[1] ^= X[2];
-            X[4] += X[7]; X[7] = RotL_64(X[7],27ul); X[7] ^= X[4];
-            X[6] += X[5]; X[5] = RotL_64(X[5],14ul); X[5] ^= X[6];
-            X[0] += X[3]; X[3] = RotL_64(X[3],42ul); X[3] ^= X[0];
+            X_[2] += X_[1]; X_[1] = RotL_64(X_[1],33ul); X_[1] ^= X_[2];
+            X_[4] += X_[7]; X_[7] = RotL_64(X_[7],27ul); X_[7] ^= X_[4];
+            X_[6] += X_[5]; X_[5] = RotL_64(X_[5],14ul); X_[5] ^= X_[6];
+            X_[0] += X_[3]; X_[3] = RotL_64(X_[3],42ul); X_[3] ^= X_[0];
 
-            X[4] += X[1]; X[1] = RotL_64(X[1],17ul); X[1] ^= X[4];
-            X[6] += X[3]; X[3] = RotL_64(X[3],49ul); X[3] ^= X[6];
-            X[0] += X[5]; X[5] = RotL_64(X[5],36ul); X[5] ^= X[0];
-            X[2] += X[7]; X[7] = RotL_64(X[7],39ul); X[7] ^= X[2];
+            X_[4] += X_[1]; X_[1] = RotL_64(X_[1],17ul); X_[1] ^= X_[4];
+            X_[6] += X_[3]; X_[3] = RotL_64(X_[3],49ul); X_[3] ^= X_[6];
+            X_[0] += X_[5]; X_[5] = RotL_64(X_[5],36ul); X_[5] ^= X_[0];
+            X_[2] += X_[7]; X_[7] = RotL_64(X_[7],39ul); X_[7] ^= X_[2];
 
-            X[6] += X[1]; X[1] = RotL_64(X[1],44ul); X[1] ^= X[6];
-            X[0] += X[7]; X[7] = RotL_64(X[7], 9ul); X[7] ^= X[0];
-            X[2] += X[5]; X[5] = RotL_64(X[5],54ul); X[5] ^= X[2];
-            X[4] += X[3]; X[3] = RotL_64(X[3],56ul); X[3] ^= X[4];
-
-            for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
-                 X[i] += ks[((2*r-1)+i) % (SKEIN_512_STATE_WORDS+1)];
-            }
-
-            X[SKEIN_512_STATE_WORDS-3] += ts[((2*r-1)+0) % 3];
-            X[SKEIN_512_STATE_WORDS-2] += ts[((2*r-1)+1) % 3];
-            X[SKEIN_512_STATE_WORDS-1] += (2*r-1);
-
-            X[0] += X[1]; X[1] = RotL_64(X[1],39ul); X[1] ^= X[0];
-            X[2] += X[3]; X[3] = RotL_64(X[3],30ul); X[3] ^= X[2];
-            X[4] += X[5]; X[5] = RotL_64(X[5],34ul); X[5] ^= X[4];
-            X[6] += X[7]; X[7] = RotL_64(X[7],24ul); X[7] ^= X[6];
-
-            X[2] += X[1]; X[1] = RotL_64(X[1],13ul); X[1] ^= X[2];
-            X[4] += X[7]; X[7] = RotL_64(X[7],50ul); X[7] ^= X[4];
-            X[6] += X[5]; X[5] = RotL_64(X[5],10ul); X[5] ^= X[6];
-            X[0] += X[3]; X[3] = RotL_64(X[3],17ul); X[3] ^= X[0];
-
-            X[4] += X[1]; X[1] = RotL_64(X[1],25ul); X[1] ^= X[4];
-            X[6] += X[3]; X[3] = RotL_64(X[3],29ul); X[3] ^= X[6];
-            X[0] += X[5]; X[5] = RotL_64(X[5],39ul); X[5] ^= X[0];
-            X[2] += X[7]; X[7] = RotL_64(X[7],43ul); X[7] ^= X[2];
-
-            X[6] += X[1]; X[1] = RotL_64(X[1], 8ul); X[1] ^= X[6];
-            X[0] += X[7]; X[7] = RotL_64(X[7],35ul); X[7] ^= X[0];
-            X[2] += X[5]; X[5] = RotL_64(X[5],56ul); X[5] ^= X[2];
-            X[4] += X[3]; X[3] = RotL_64(X[3],22ul); X[3] ^= X[4];
+            X_[6] += X_[1]; X_[1] = RotL_64(X_[1],44ul); X_[1] ^= X_[6];
+            X_[0] += X_[7]; X_[7] = RotL_64(X_[7], 9ul); X_[7] ^= X_[0];
+            X_[2] += X_[5]; X_[5] = RotL_64(X_[5],54ul); X_[5] ^= X_[2];
+            X_[4] += X_[3]; X_[3] = RotL_64(X_[3],56ul); X_[3] ^= X_[4];
 
             for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
-                 X[i] += ks[((2*r)+i) % (SKEIN_512_STATE_WORDS+1)];
+                 X_[i] += ks[((2*r-1)+i) % (SKEIN_512_STATE_WORDS+1)];
             }
 
-            X[SKEIN_512_STATE_WORDS-3] += ts[((2*r)+0) % 3];
-            X[SKEIN_512_STATE_WORDS-2] += ts[((2*r)+1) % 3];
-            X[SKEIN_512_STATE_WORDS-1] += (2*r);                    /* avoid slide attacks */
+            X_[SKEIN_512_STATE_WORDS-3] += ts[((2*r-1)+0) % 3];
+            X_[SKEIN_512_STATE_WORDS-2] += ts[((2*r-1)+1) % 3];
+            X_[SKEIN_512_STATE_WORDS-1] += (2*r-1);
+
+            X_[0] += X_[1]; X_[1] = RotL_64(X_[1],39ul); X_[1] ^= X_[0];
+            X_[2] += X_[3]; X_[3] = RotL_64(X_[3],30ul); X_[3] ^= X_[2];
+            X_[4] += X_[5]; X_[5] = RotL_64(X_[5],34ul); X_[5] ^= X_[4];
+            X_[6] += X_[7]; X_[7] = RotL_64(X_[7],24ul); X_[7] ^= X_[6];
+
+            X_[2] += X_[1]; X_[1] = RotL_64(X_[1],13ul); X_[1] ^= X_[2];
+            X_[4] += X_[7]; X_[7] = RotL_64(X_[7],50ul); X_[7] ^= X_[4];
+            X_[6] += X_[5]; X_[5] = RotL_64(X_[5],10ul); X_[5] ^= X_[6];
+            X_[0] += X_[3]; X_[3] = RotL_64(X_[3],17ul); X_[3] ^= X_[0];
+
+            X_[4] += X_[1]; X_[1] = RotL_64(X_[1],25ul); X_[1] ^= X_[4];
+            X_[6] += X_[3]; X_[3] = RotL_64(X_[3],29ul); X_[3] ^= X_[6];
+            X_[0] += X_[5]; X_[5] = RotL_64(X_[5],39ul); X_[5] ^= X_[0];
+            X_[2] += X_[7]; X_[7] = RotL_64(X_[7],43ul); X_[7] ^= X_[2];
+
+            X_[6] += X_[1]; X_[1] = RotL_64(X_[1], 8ul); X_[1] ^= X_[6];
+            X_[0] += X_[7]; X_[7] = RotL_64(X_[7],35ul); X_[7] ^= X_[0];
+            X_[2] += X_[5]; X_[5] = RotL_64(X_[5],56ul); X_[5] ^= X_[2];
+            X_[4] += X_[3]; X_[3] = RotL_64(X_[3],22ul); X_[3] ^= X_[4];
+
+            for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
+                 X_[i] += ks[((2*r)+i) % (SKEIN_512_STATE_WORDS+1)];
+            }
+
+            X_[SKEIN_512_STATE_WORDS-3] += ts[((2*r)+0) % 3];
+            X_[SKEIN_512_STATE_WORDS-2] += ts[((2*r)+1) % 3];
+            X_[SKEIN_512_STATE_WORDS-1] += (2*r);                    /* avoid slide attacks */
         }
 
         /* do the final "feedforward" xor, update context chaining vars */
         for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
-            _X[i] = X[i] ^ w[i];
+            X[i] = X_[i] ^ w[i];
         }
 
-        _T[1] &= ~(((ulong)  1 ) << ((126) - 64));    /* clear the start bit */
-        blkPtr += SKEIN_512_BLOCK_BYTES;
+        T[1] &= ~(((ulong)  1 ) << ((126) - 64));    /* clear the start bit */
+        blkPtr += SKEIN_512_STATE_WORDS;
     } while (--blkCnt);
 }
 
-
-void Skein_512_Process_Block(ulong *_X, ulong *_T, const uchar *blkPtr, uint blkCnt, uint byteCntAdd)
+__kernel int Init(__global uint *bCnt, __global uchar *b, __global ulong *X, __global ulong *T, __global uint *hashbitlen)
 {
-    uint  i,r,n;
-    ulong  ts[3];                            /* key schedule: tweak */
-    ulong  ks[SKEIN_512_STATE_WORDS+1];      /* key schedule: chaining vars */
-    ulong  X [SKEIN_512_STATE_WORDS];        /* local copy of vars */
-    ulong  w [SKEIN_512_STATE_WORDS];        /* local copy of input block */
+  uint i;
+  __global ulong *w_ = (__global ulong *)b;
+      
+  /* build/process config block for hashing */
+  //Skein_Start_New_Type(ctx,CFG_FINAL);        /* set tweaks: T0=0; T1=CFG | FINAL */
+  T[0] = 0;
+  T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_CFG_FINAL;
 
-    do  {
-        /* this implementation only supports 2**64 input bytes (no carry out here) */
-        _T[0] += byteCntAdd;            /* update processed length */
+  //memset(&cfg.w,0,sizeof(cfg.w));             /* pre-pad cfg.w[] with zeroes */
+  for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
+    w_[i] = 0;
+  }
+  
+  w_[0] = SKEIN_SCHEMA_VER;  /* set the schema, version */
+  w_[1] = *hashbitlen;        /* hash result length in bits */
+  w_[2] = SKEIN_CFG_TREE_INFO_SEQUENTIAL;
 
-        /* precompute the key schedule for this block */
-        ks[SKEIN_512_STATE_WORDS] = SKEIN_KS_PARITY;
-        for (i=0;i < SKEIN_512_STATE_WORDS; i++) {
-            ks[i]     = _X[i];
-            ks[SKEIN_512_STATE_WORDS] ^= _X[i];            /* compute overall parity */
-        }
+  /* compute the initial chaining values from config block */
+  //memset(X, 0, sizeof(X));            /* zero the chaining variables */
+  for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
+    X[i] = 0;
+  }
 
-        ts[0] = _T[0];
-        ts[1] = _T[1];
-        ts[2] = ts[0] ^ ts[1];
+  Skein_512_Process_Block(X, T, b, 1, SKEIN_CFG_STR_LEN);
 
-        //Skein_Get64_LSB_First(w, blkPtr, SKEIN_512_STATE_WORDS); /* get input block in little-endian format */
-        for (n=0;n<SKEIN_512_STATE_WORDS;n++) {
-            w[n] = ((ulong *)blkPtr)[n];
-        }
-
-        for (i=0;i < SKEIN_512_STATE_WORDS; i++) {               /* do the first full key injection */
-            X[i]  = w[i] + ks[i];
-        }
-
-        X[SKEIN_512_STATE_WORDS-3] += ts[0];
-        X[SKEIN_512_STATE_WORDS-2] += ts[1];
-
-        for (r=1;r <= SKEIN_512_ROUNDS_TOTAL/8; r++) { /* unroll 8 rounds */
-            X[0] += X[1]; X[1] = RotL_64(X[1],46); X[1] ^= X[0];
-            X[2] += X[3]; X[3] = RotL_64(X[3],36); X[3] ^= X[2];
-            X[4] += X[5]; X[5] = RotL_64(X[5],19); X[5] ^= X[4];
-            X[6] += X[7]; X[7] = RotL_64(X[7],37); X[7] ^= X[6];
-
-
-            X[2] += X[1]; X[1] = RotL_64(X[1],33ul); X[1] ^= X[2];
-            X[4] += X[7]; X[7] = RotL_64(X[7],27ul); X[7] ^= X[4];
-            X[6] += X[5]; X[5] = RotL_64(X[5],14ul); X[5] ^= X[6];
-            X[0] += X[3]; X[3] = RotL_64(X[3],42ul); X[3] ^= X[0];
-
-            X[4] += X[1]; X[1] = RotL_64(X[1],17ul); X[1] ^= X[4];
-            X[6] += X[3]; X[3] = RotL_64(X[3],49ul); X[3] ^= X[6];
-            X[0] += X[5]; X[5] = RotL_64(X[5],36ul); X[5] ^= X[0];
-            X[2] += X[7]; X[7] = RotL_64(X[7],39ul); X[7] ^= X[2];
-
-            X[6] += X[1]; X[1] = RotL_64(X[1],44ul); X[1] ^= X[6];
-            X[0] += X[7]; X[7] = RotL_64(X[7], 9ul); X[7] ^= X[0];
-            X[2] += X[5]; X[5] = RotL_64(X[5],54ul); X[5] ^= X[2];
-            X[4] += X[3]; X[3] = RotL_64(X[3],56ul); X[3] ^= X[4];
-
-            for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
-                 X[i] += ks[((2*r-1)+i) % (SKEIN_512_STATE_WORDS+1)];
-            }
-
-            X[SKEIN_512_STATE_WORDS-3] += ts[((2*r-1)+0) % 3];
-            X[SKEIN_512_STATE_WORDS-2] += ts[((2*r-1)+1) % 3];
-            X[SKEIN_512_STATE_WORDS-1] += (2*r-1);
-
-            X[0] += X[1]; X[1] = RotL_64(X[1],39ul); X[1] ^= X[0];
-            X[2] += X[3]; X[3] = RotL_64(X[3],30ul); X[3] ^= X[2];
-            X[4] += X[5]; X[5] = RotL_64(X[5],34ul); X[5] ^= X[4];
-            X[6] += X[7]; X[7] = RotL_64(X[7],24ul); X[7] ^= X[6];
-
-            X[2] += X[1]; X[1] = RotL_64(X[1],13ul); X[1] ^= X[2];
-            X[4] += X[7]; X[7] = RotL_64(X[7],50ul); X[7] ^= X[4];
-            X[6] += X[5]; X[5] = RotL_64(X[5],10ul); X[5] ^= X[6];
-            X[0] += X[3]; X[3] = RotL_64(X[3],17ul); X[3] ^= X[0];
-
-            X[4] += X[1]; X[1] = RotL_64(X[1],25ul); X[1] ^= X[4];
-            X[6] += X[3]; X[3] = RotL_64(X[3],29ul); X[3] ^= X[6];
-            X[0] += X[5]; X[5] = RotL_64(X[5],39ul); X[5] ^= X[0];
-            X[2] += X[7]; X[7] = RotL_64(X[7],43ul); X[7] ^= X[2];
-
-            X[6] += X[1]; X[1] = RotL_64(X[1], 8ul); X[1] ^= X[6];
-            X[0] += X[7]; X[7] = RotL_64(X[7],35ul); X[7] ^= X[0];
-            X[2] += X[5]; X[5] = RotL_64(X[5],56ul); X[5] ^= X[2];
-            X[4] += X[3]; X[3] = RotL_64(X[3],22ul); X[3] ^= X[4];
-
-            for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
-                 X[i] += ks[((2*r)+i) % (SKEIN_512_STATE_WORDS+1)];
-            }
-
-            X[SKEIN_512_STATE_WORDS-3] += ts[((2*r)+0) % 3];
-            X[SKEIN_512_STATE_WORDS-2] += ts[((2*r)+1) % 3];
-            X[SKEIN_512_STATE_WORDS-1] += (2*r);                    /* avoid slide attacks */
-        }
-
-        /* do the final "feedforward" xor, update context chaining vars */
-        for (i=0;i < SKEIN_512_STATE_WORDS;i++) {
-            _X[i] = X[i] ^ w[i];
-        }
-
-        _T[1] &= ~(((ulong)  1 ) << ((126) - 64));    /* clear the start bit */
-        blkPtr += SKEIN_512_BLOCK_BYTES;
-    } while (--blkCnt);
+  /* The chaining vars ctx->X are now initialized for the given hashbitlen. */
+  /* Set up to process the data message portion of the hash (default) */
+  //Skein_Start_New_Type(ctx,MSG);              /* T0=0, T1= MSG type, h.bCnt=0 */
+  T[0] = 0;
+  T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_MSG;
+  *bCnt = 0;
+  
+  return 0;
 }
 
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-/* all-in-one hash function */
-__kernel int Hash(__global uint *hashbitlen, __global const uchar *data, __global uint *databitlen, __global uchar *hashval)
+__kernel int Update(__global uint *bCnt, __global uchar *b, __global ulong *X, __global ulong *T, __global uchar *msg, __global uint *databitlen)
 {
-    uint  i;
-    uint  bCnt = 0;
-    ulong X[SKEIN_512_STATE_WORDS];
-    ulong T[SKEIN_MODIFIER_WORDS];
-    uchar b[SKEIN_512_BLOCK_BYTES];
+  uint i;
+  uint n;
+  uint msgByteCnt = (*databitlen) >> 3;
 
-    //Init(&bCnt, X, T, hashbitlen);
-    //uint Init(uint *bCnt, ulong *_X, ulong *_T, int hashBitLen)
-        //union {
-        //  uchar  b[SKEIN_512_STATE_BYTES];
-        //  ulong  w[SKEIN_512_STATE_WORDS];
-        //} cfg;                                  /* config block */
-        ulong *w = b;
-
-        /* set tweaks: T0=0; T1=CFG | FINAL */
-        T[0] = 0;
-        T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_CFG_FINAL;
-
-        //memset(&cfg.w, 0, sizeof(cfg.w));             /* pre-pad cfg.w[] with zeroes */
-        for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
-          w[i] = 0;
-        }
-
-        w[0] = SKEIN_SCHEMA_VER;                  /* set the schema, version */
-        w[1] = *hashbitlen;                       /* hash result length in bits */
-        w[2] = SKEIN_CFG_TREE_INFO_SEQUENTIAL;
-
-        /* compute the initial chaining values from config block */
-        //memset(X, 0, SKEIN_512_STATE_WORDS * sizeof(ulong));  /* zero the chaining variables */
-        for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
-          X[i] = 0;
-        }
-
-        Skein_512_Process_Block(X, T, b, 1, SKEIN_CFG_STR_LEN);
-
-        /* The chaining vars ctx->X are now initialized for the given hashbitlen. */
-        /* Set up to process the data message portion of the hash (default) */
-        T[0] = 0;
-        T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_MSG;
-        bCnt = 0;
-
-        //return 0;
-
-    //Update(&bCnt, b, X, T, data, databitlen);
-    //int Update(uint *bCnt, uchar *b, ulong *X, ulong *T, const uchar *data, ulong long databitlen)
-        uint n;
-        __global uchar *msg = data;
-        uint msgByteCnt = *databitlen >> 3;
-
-        /* process full blocks, if any */
-        if (msgByteCnt + bCnt > SKEIN_512_BLOCK_BYTES) {
-            if (bCnt) {                              /* finish up any buffered message data */
-                n = SKEIN_512_BLOCK_BYTES - bCnt;  /* # bytes free in buffer b[] */
-                if (n) {
-                    //memcpy(&b[bCnt], msg, n);
-                    for (i = 0; i < n; i++) {
-                      b[bCnt+i] = msg[i];
-                    }
-                    msgByteCnt  -= n;
-                    msg         += n;
-                    bCnt        += n;
-                }
-
-                Skein_512_Process_Block(X, T, b, 1, SKEIN_512_BLOCK_BYTES);
-                bCnt = 0;
-            }
-
-            /* now process any remaining full blocks, directly from input message data */
-            if (msgByteCnt > SKEIN_512_BLOCK_BYTES) {
-                n = (msgByteCnt-1) / SKEIN_512_BLOCK_BYTES;   /* number of full blocks to process */
-                Skein_512_Process_Block2(X, T, msg, n, SKEIN_512_BLOCK_BYTES);
-                msgByteCnt -= n * SKEIN_512_BLOCK_BYTES;
-                msg        += n * SKEIN_512_BLOCK_BYTES;
-            }
-        }
-
-        /* copy any remaining source message data bytes into b[] */
-        if (msgByteCnt) {
-            //memcpy(&b[bCnt], msg, msgByteCnt);
-            for (i = 0; i < msgByteCnt; i++) {
-              b[bCnt+i] = msg[i];
-            }
-            bCnt += msgByteCnt;
-        }
-
-    //Final(&bCnt, b, X, T, hashbitlen, hashval);
-    //int Final(uint *bCnt, uchar *b, ulong *_X, ulong *T, int hashBitLen, uchar *hashVal)
-        uint j,byteCnt;
-        ulong _X[SKEIN_512_STATE_WORDS];
-
-        T[1] |= SKEIN_T1_FLAG_FINAL;                  /* tag as the final block */
-        if (bCnt < SKEIN_512_BLOCK_BYTES) {          /* zero pad b[] if necessary */
-          //memset(&b[bCnt], 0, SKEIN_512_BLOCK_BYTES - bCnt);
-          for (i = 0; i < SKEIN_512_BLOCK_BYTES - bCnt; i++) {
-            b[bCnt+i] = 0;
+  /* process full blocks, if any */
+  if (msgByteCnt + *bCnt > SKEIN_512_BLOCK_BYTES) {
+      if (*bCnt) {                              /* finish up any buffered message data */
+          n = SKEIN_512_BLOCK_BYTES - *bCnt;  /* # bytes free in buffer b[] */
+          if (n) {
+              //memcpy(&b[bCnt], msg, n);
+              for (i = 0; i < n; i++) {
+                b[*bCnt+i] = msg[i];
+              }
+              
+              msgByteCnt  -= n;
+              msg         += n;
+              *bCnt       += n;
           }
-        }
 
-        Skein_512_Process_Block(X, T, b, 1, bCnt);  /* process the final block */
+          Skein_512_Process_Block(X, T, b, 1, SKEIN_512_BLOCK_BYTES);
+          *bCnt = 0;
+      }
 
-        for (i=0;i<64;i++) {
-          hashval[i] = (uchar) (X[i>>3] >> (8*(i&7)));
-        }
+      /* now process any remaining full blocks, directly from input message data */
+      if (msgByteCnt > SKEIN_512_BLOCK_BYTES) {
+          n = (msgByteCnt-1) / SKEIN_512_BLOCK_BYTES;   /* number of full blocks to process */
+          Skein_512_Process_Block(X, T, msg, n, SKEIN_512_BLOCK_BYTES);
+          msgByteCnt -= n * SKEIN_512_BLOCK_BYTES;
+          msg        += n * SKEIN_512_BLOCK_BYTES;
+      }
+  }
 
-        /* now output the result */
-        byteCnt = (*hashbitlen + 7) >> 3;             /* total number of output bytes */
+  /* copy any remaining source message data bytes into b[] */
+  if (msgByteCnt) {
+      //memcpy(&b[bCnt], msg, msgByteCnt);
+      for (i = 0; i < msgByteCnt; i++) {
+        b[*bCnt+i] = msg[i];
+      }
+      *bCnt += msgByteCnt;
+  }
+  
+  return 0;
+}
 
-        /* run Threefish in "counter mode" to generate more output */
-        //memset(b, 0 , SKEIN_512_BLOCK_BYTES);  /* zero out b[], so it can hold the counter */
-        for (i = 0; i < SKEIN_512_BLOCK_BYTES; i++) {
-          b[i] = 0;
-        }
+__kernel int Final(__global uint *bCnt, __global uchar *b, __global ulong *X, __global ulong *T, __global uchar *hash, __global uint *hashbitlen)
+{
+  uint i,j,n,byteCnt;
+  ulong _X[SKEIN_512_STATE_WORDS];
 
-        //memcpy(_X, X, SKEIN_512_STATE_WORDS * sizeof(ulong));       /* keep a local copy of counter mode "key" */
-        for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
-          _X[i] = X[i];
-        }
+  T[1] |= SKEIN_T1_FLAG_FINAL;                  /* tag as the final block */
+  if (*bCnt < SKEIN_512_BLOCK_BYTES) {          /* zero pad b[] if necessary */
+    //memset(&b[bCnt], 0, SKEIN_512_BLOCK_BYTES - bCnt);
+    for (i = 0; i < SKEIN_512_BLOCK_BYTES - *bCnt; i++) {
+      b[*bCnt+i] = 0;
+    }
+  }
+  
+  uint bCnt_ = *bCnt;
 
-        for (i=0;i*SKEIN_512_BLOCK_BYTES < byteCnt;i++) {
-            ((ulong *)b)[0]= ((ulong) i); /* build the counter block */
-            T[0] = 0;
-            T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_OUT_FINAL;
-            bCnt = 0;
+  Skein_512_Process_Block(X, T, b, 1, bCnt_);  /* process the final block */
 
-            Skein_512_Process_Block(X, T, b, 1, sizeof(ulong)); /* run "counter mode" */
+  /* now output the result */
+  byteCnt = (*hashbitlen + 7) >> 3;             /* total number of output bytes */
 
-            n = byteCnt - i*SKEIN_512_BLOCK_BYTES;   /* number of output bytes left to go */
-            if (n >= SKEIN_512_BLOCK_BYTES) {
-                n  = SKEIN_512_BLOCK_BYTES;
-            }
+  /* run Threefish in "counter mode" to generate more output */
+  //memset(b, 0 , SKEIN_512_BLOCK_BYTES);  /* zero out b[], so it can hold the counter */
+  for (i = 0; i < SKEIN_512_BLOCK_BYTES; i++) {
+    b[i] = 0;
+  }
 
-            uint m;
+  //memcpy(_X, X, SKEIN_512_STATE_WORDS * sizeof(ulong));       /* keep a local copy of counter mode "key" */
+  for (i = 0; i < SKEIN_512_STATE_WORDS; i++) {
+    _X[i] = X[i];
+  }
 
-            for (m=0;m<n;m++) {
-                hashval[i*SKEIN_512_BLOCK_BYTES+m] = (uchar) (X[m>>3] >> (8*(m&7)));
-            }
+  for (i=0;i*SKEIN_512_BLOCK_BYTES < byteCnt;i++) {
+      ((__global ulong *)b)[0]= ((ulong) i); /* build the counter block */
+      T[0] = 0;
+      T[1] = SKEIN_T1_FLAG_FIRST | SKEIN_T1_BLK_TYPE_OUT_FINAL;
+      *bCnt = 0;
 
-            //memcpy(X, _X, SKEIN_512_STATE_WORDS * sizeof(ulong));   /* restore the counter mode key for next time */
-            for (j = 0; j < SKEIN_512_STATE_WORDS; j++) {
-              X[j] = _X[j];
-            }
-        }
+      Skein_512_Process_Block(X, T, b, 1, sizeof(ulong)); /* run "counter mode" */
 
+      n = byteCnt - i*SKEIN_512_BLOCK_BYTES;   /* number of output bytes left to go */
+      if (n >= SKEIN_512_BLOCK_BYTES) {
+          n  = SKEIN_512_BLOCK_BYTES;
+      }
 
-    return 0;
+      uint m;
+
+      for (m=0;m<n;m++) {
+          hash[i*SKEIN_512_BLOCK_BYTES+m] = (uchar) (X[m>>3] >> (8*(m&7)));
+      }
+
+      //memcpy(X, _X, SKEIN_512_STATE_WORDS * sizeof(ulong));   /* restore the counter mode key for next time */
+      for (j = 0; j < SKEIN_512_STATE_WORDS; j++) {
+        X[j] = _X[j];
+      }
+  }
+  
+  return 0;
+}
+
+__kernel int Hash(__global uint *bCnt, __global uchar *b, __global ulong *X, __global ulong *T, __global uint *databitlen, __global uchar *data, __global uint *hashbitlen, __global uchar *hash)
+{
+  Init(bCnt, b, X, T, hashbitlen);
+  Update(bCnt, b, X, T, data, databitlen);
+  Final(bCnt, b, X, T, hash, hashbitlen);
+  
+  return 0;
 }

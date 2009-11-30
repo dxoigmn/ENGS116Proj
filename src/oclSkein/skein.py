@@ -4,8 +4,8 @@ import pyopencl as cl
 import numpy as np
 import sys
 
-src   = open('skein_new.cl', 'r').read()
-ctx   = cl.Context(dev_type=cl.device_type.CPU)
+src   = open('skein.cl', 'r').read()
+ctx   = cl.Context(dev_type=cl.device_type.GPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 

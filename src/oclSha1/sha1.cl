@@ -1,10 +1,12 @@
 /*
+  Modified by Cory Cornelius from <http://www.theargon.com/achilles/cryptography/sha1/sha1.c>
+*/
+
+/*
  SHA-1 in C
 
  By Steve Reid <steve@edmweb.com>, with small changes to make it
  fit into mutt by Thomas Roessler <roessler@does-not-exist.org>.
- 
- Modifed by Cory Cornelisu to work on OpenCL.
  
  100% Public Domain.
 
