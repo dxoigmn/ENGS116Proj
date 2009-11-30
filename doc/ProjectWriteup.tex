@@ -117,32 +117,20 @@ Secondary: ATI Radeon 4870 512MB
 \end{verbatim}
 
 \subsection*{Methodology}
-Each algorithm was run 5 times on both the CPU and the NVIDIA GPU using data ranging in size from 1 byte ($2^0$) to 1,048,576 bytes ($2^{20}$) by powers of 2.
-By testing values throughout this range we are able to see both how much base overhead each function has, but also how well they will perform when overhead becomes irrelevant and they achieve a near constant processing rate.
-Skein was the only algorithm which ran properly on the ATI card so was tested by itself on that configuration.
-
-Additionally, CubeHash and Echo were the only algorithms which allowed arbitrary hash bit length, and were tested for speed vs. hash bit length for a fixed data size of 32 bytes.
-32 bytes was chosen because CubeHash and Echo performed nearly identically for a 32 byte data input using a 512 bit hash in the original tests.
+Each algorithm was run either 10 times on both the CPU, the NVIDIA GPU and the ATI GPU using data ranging in size from 0 bytes to 8,192 bytes by increments of 64 bytes.
+The 10 runs were then averaged to find the runtime of the algorithm on the GPUs and CPU.
+We chose the 8,192 byte size because preliminary testing showed that it was a sufficient data size that algorithm setup overhead could be ignored and the actual runtime of the algorithm in terms of seconds per byte became near constant.
 
 \subsection*{CubeHash}
-CubeHash is really slow.
-Really really slow.
-The author of CubeHash acknowledged this publicly and suggested some non standard settings which would make it run somewhat faster.  
-In particular: the default settings are to run 8 rounds of CubeHash for every single byte in the input data, for our test suite: 64 byte increments to 8192 bytes 10 times, this would result in 41943040 rounds being performed.
-We attempted to run the full suite on the original CubeHash on the ATI GPU and it did not complete in an hour.
+The first thing that you should know about CubeHash is that the reference implementation is  slow - really slow.
+The Daniel Bernstein, creator of CubeHash acknowledged this publicly\cite{Bernstein} and suggested a tweak to the `formal' implementation to speed up the algorithm by a factor of about 16.
+The formal CubeHash algorithm runs 8 rounds of CubeHash for single byte in the input data. For our test suite (64 byte increments to 8192 bytes 10 times) this would result in 41,943,040 rounds being performed.
 
-The author's recommended solution is to instead use 16 rounds for each 32 bytes.
-We also changed to using 128 byte increments and only 5 run averages bringing the number of rounds performed to 655360.
+Bernstein's recommended solution is use 16 rounds for each 32 bytes - additionally decided to run only 5 trials to average for CubeHash.
+With these changes we only have to perform 1,310,720 rounds.
 Using the reduced computation version of CubeHash the GPU completed computation in only 137 seconds - it would have taken about 2.5 hours to complete the full computations on the full CubeHash algorithm.
 
-
-
 \subsection*{Echo}
-ECHO was possibly the most troublesome of the algorithms to implement - never successfully running on the ATI card.  
-When we attempted to run ECHO on ATI card it would lock up the entire system requiring a hard shutdown. 
-However, when run with the NVIDIA 8800 it would run without issue.
-ECHO proved particularly difficult to code in OpenCL.
-
 Echo ran at a maximum of 1675.7 ns/byte on the CPU and 354162.5 ns/byte on the GPU.
 This translates to 741.5 clocks/byte on the CPU (at 2.26 Ghz) and 590,270 clocks/byte on the GPU (at 600 Mhz).
 
@@ -176,6 +164,7 @@ Additionally, a kernel run on a CPU can often perform in drastically different w
   \bibitem{CodeBook} ``Block cipher modes of operation'' Available at \url{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}.
   \bibitem{Manavski} ``CUDA COMPATIBLE GPU AS AN EFFICIENT HARDWARE ACCELERATOR FOR AES CRYPTOGRAPHY.'' Available at \url{http://www.manavski.com/downloads/PID505889.pdf}
   \bibitem{SkeinSpeed} ``The Skein Hash Function Family.'' Available at \url{http://www.schneier.com/skein.html}
+  \bibitem{Bernstein} Daniel J. Bernstein. ``CubeHash parameter tweak: 16 times faster.'' Available at \url{http://cubehash.cr.yp.to/submission/tweak.pdf}
 \end{thebibliography}
 
 \end{document}
