@@ -1,0 +1,23 @@
+\section*{Implementation}
+
+For each hash function we established a standard model for implementation: each hash function has internal Init, Update and Final function.
+Each of these functions was converted to an OpenCL kernel we wrote a wrapper in Python using the PyOpenCL library to implement our evaluation methodology.  Specific implementation details and roadblocks encountered follow.
+
+\subsection*{CubeHash}
+
+\subsection*{Echo}
+
+As part of the submissions materials to the NIST competition the ECHO team submitted a 32 bit optimized version, a 64-bit optimized version and a reference implementation.  
+We chose to base our OpenCL implementation on the reference implementation, hoping that it would be the most likely to work with little modification.
+As it turned out the Echo function required a good deal of work to get to work.
+We began the debugging process by flattening all the functions into the kernel to avoid any issues with pointer passing causing data to not be written back to the global buffers.
+After having done this however, we still did not have a functional hash function - at least it was functional on the cpu but not the GPU.  
+We at first did not have any idea how to resolve this issue - since it is very difficult to debug code that cannot contain any print statements and cannot write out to a file. 
+Eventually, we began debugging by setting the return value of the hash to the memory that we wanted to look at, and began comparing the results from code that ran on teh CPU to the same code running on the GPU.
+By doing this we found a number of small errors in the code.
+
+Finally, the largest problem turned out to the be the accessible scope of the S-box.
+Since the S-box was declared in the same file as the kernel we had assumed that it would be in the scope of the kernel and it would be stored in the local memory of the graphics card.
+As it turned out by declaring the S-box outside of the actual kernel it was not instantiating the S-box in the local memory of the graphics card and instead when we tried to access the values of the S-box we only got 0's back.
+It was particularly difficult to spot the error because the program behaved differently on the CPU and GPU - on the CPU it accessed the S-boxes as normal, but the GPU was unable to do the same until they were moved into the kernel.
+\subsection*{Skein}

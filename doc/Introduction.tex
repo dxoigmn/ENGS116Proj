@@ -1,0 +1,17 @@
+\section*{Introduction}
+Hash functions are a critical tool in computer security.
+A hash function allows for fingerprinting and verification of a piece of data by running a deterministic algorithm over a set of data with the property that if any slight changes are made to the data a very different hash will result.
+ 
+Recently, a number of popular and standard hash algorithms have been successfully attacked.
+The widely used MD5 hashing algorithm has been demonstrated to be quite insecure \cite{Nostradamus}.
+It has been shown to be cryptographically weak because it is not collision resistant and vulnerable to a kind of preimage attack--that is, it is very easy to create two arbitrary meaningful documents with the same hash.
+In such a situation applications as varied as secure document downloading (using hashes as verification that you've received the right file) to online banking (hashes are used to verify security certificates for websites) can be compromised.
+In addition, there have been recent serious attacks against one of the current standard hash algorithm, the Secure Hash Algorithm 1 (SHA-1) \cite{Sha1Collisions}.
+Because SHA-2 is structurally similar to SHA-1 cryptographers believe SHA-2 will fall just as SHA-1 has.
+ 
+As a result of these developments the National Institute of Standards and Technology (NIST) is currently running a competition to choose a new secure hash algorithm (SHA-3) \cite{Sha3Request}.
+NIST is running this competition similarly to how they ran the competition for the new Advanced Encryption Standard (AES).
+In particular, while a proposed algorithm might be stronger than every other proposed algorithm, the algorithm is useless if it takes a long time to execute.
+Thus there is a requirement, as there similarly was in the AES competition, for the authors of the algorithm to provide documentation on the computational efficiency of the algorithm.
+NIST will analyze ``each submission's optimized implementations on a variety of platforms as specified in Section 6.B, and for a variety of input message lengths.'' \cite{Sha3Request}.
+Since computational efficiency will be an important part of the decision in choosing SHA-3 some authors of proposed algorithms have taken great care to design their algorithms in such a way to be exploit parallelism where ever possible.

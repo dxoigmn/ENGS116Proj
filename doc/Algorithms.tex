@@ -1,0 +1,30 @@
+
+\section*{Algorithms}
+We chose to implement SHA1 in OpenCL as a baseline to see how well the NIST competitors have been able to include parallelism in their designs.  Additionally, we implemented the CubeHash, ECHO, and Skein algorithms.
+
+\subsection*{CubeHash}
+
+CubeHash is perhaps the simplest SHA-3 candidate and, as such, as garnered significant attention.
+CubeHash can be parameterized on the number of rounds $r$, the number of bytes per block $b$, and the number of output bits $h$.
+For our tests, we chose $r=8$, $b=1$, and $h=512$ primarily because these were the recommended parameters specified by the author \cite{CubeHash-spec}.
+
+\subsection*{ECHO}
+ECHO is based largely on the AES block cipher chosen by NIST to replace the defunct Data Encryption Standard as an official federal government standard in the United States.
+ECHO provides a number of advantages over other hash functions in the competition because is built upon the AES block cipher.
+In particular, Intel chips starting with the current Nehalem core will have built in AES hardware support - allowing for three times faster operation than previous general purpose CPU chips.\cite{Westmere}
+In addition to receiving performance enhancements from any AES optimizations built into hardware, testing ECHO on a GPU should also give some indication of how effective running AES as a GPGPU program would be.
+Preliminary results from researchers have demonstrated up to a 2\cite{Harrison}-20x\cite{Manavski}  increase in encryption rate throughput by using the GPU as a encryption co-processor.
+However, there is good reason to doubt the 20x figure as it appears that it was achieved through a naive implementation of AES using Electronic Code Book (ECB) mode.
+Unlike more secure encryption modes, ECB mode encrypts data in finite sized chunks allowing for easy data parallelization.  
+However, ECB mode is largely insecure for many use cases.\cite{CodeBook}\\
+
+ECHO runs 8 rounds, each round consisting of 2 AES rounds.  Additionally, it uses a ShiftRows similar to AES but on 128 bit words, and AES MixColumns on 4-tuples. The only parameter to specify is the hashlength - we chose a default hashlength of 512 bits for our tests, but also ran a test with varied hash length to compare against CubeHash.
+
+\subsection*{Skein}
+Skein was developed by Niels Ferguson and Bruce Schneier - a big name in the cryptography and security community.
+Skein is based on the Threefish block cipher and supports internal block sizes of 256, 512 or 1024 bits.
+Skein allows for arbitrary digest size, was designed for 64 bit processors and speed was a primary consideration of the design.
+According to the authors, Skein can run at 6.1 clock cycles/byte on a Core 2 Duo in 64 bit mode\cite{SkeinSpeed} compared with the estimated 200 clock cycles/byte for the CubeHash hash function, this means that Skein can run faster than even SHA1 or SHA2 while providing much greater security.
+Skein also has a number of optional features or alternate implementation modes which can allow for use as a ``a PRNG, a stream cipher, a key derivation function, authentication without the overhead of HMAC''\cite{SkeinSpeed}.
+It also has an optional hash-tree mode for increasing parallel execution speed. 
+
