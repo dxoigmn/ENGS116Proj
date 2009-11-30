@@ -83,6 +83,9 @@ It also has an optional hash-tree mode for increasing parallel execution speed.
 
 \section*{Implementation}
 
+For each hash function we established a standard model for implementation: each hash function has internal Init, Update and Final function.
+Each of these functions was converted to an OpenCL kernel we wrote a wrapper in Python using the PyOpenCL library to implement our evaluation methodology.  Specific implementation details and roadblocks encountered follow.
+
 \subsection*{CubeHash}
 
 \subsection*{Echo}
@@ -122,6 +125,17 @@ Additionally, CubeHash and Echo were the only algorithms which allowed arbitrary
 32 bytes was chosen because CubeHash and Echo performed nearly identically for a 32 byte data input using a 512 bit hash in the original tests.
 
 \subsection*{CubeHash}
+CubeHash is really slow.
+Really really slow.
+The author of CubeHash acknowledged this publicly and suggested some non standard settings which would make it run somewhat faster.  
+In particular: the default settings are to run 8 rounds of CubeHash for every single byte in the input data, for our test suite: 64 byte increments to 8192 bytes 10 times, this would result in 41943040 rounds being performed.
+We attempted to run the full suite on the original CubeHash on the ATI GPU and it did not complete in an hour.
+
+The author's recommended solution is to instead use 16 rounds for each 32 bytes.
+We also changed to using 128 byte increments and only 5 run averages bringing the number of rounds performed to 655360.
+Using the reduced computation version of CubeHash the GPU completed computation in only 137 seconds - it would have taken about 2.5 hours to complete the full computations on the full CubeHash algorithm.
+
+
 
 \subsection*{Echo}
 ECHO was possibly the most troublesome of the algorithms to implement - never successfully running on the ATI card.  
