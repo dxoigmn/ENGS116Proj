@@ -11,7 +11,7 @@ datas=[]
 for i in range(0,runs,1):
   datas.append([])
 
-src   = open('echo_new.cl', 'r').read()
+src   = open('echo.cl', 'r').read()
 ctx   = cl.Context(dev_type=cl.device_type.GPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
