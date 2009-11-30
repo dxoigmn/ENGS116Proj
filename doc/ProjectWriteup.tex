@@ -73,7 +73,12 @@ However, ECB mode is largely insecure for many use cases.\cite{CodeBook}\\
 ECHO runs 8 rounds, each round consisting of 2 AES rounds.  Additionally, it uses a ShiftRows similar to AES but on 128 bit words, and AES MixColumns on 4-tuples. The only parameter to specify is the hashlength - we chose a default hashlength of 512 bits for our tests, but also ran a test with varied hash length to compare against CubeHash.
 
 \subsection*{Skein}
-
+Skein was developed by Niels Ferguson and Bruce Schneier - a big name in the cryptography and security community.
+Skein is based on the Threefish block cipher and supports internal block sizes of 256, 512 or 1024 bits.
+Skein allows for arbitrary digest size, was designed for 64 bit processors and speed was a primary consideration of the design.
+According to the authors, Skein can run at 6.1 clock cycles/byte on a Core 2 Duo in 64 bit mode\cite{SkeinSpeed} compared with the estimated 200 clock cycles/byte for the CubeHash hash function, this means that Skein can run faster than even SHA1 or SHA2 while providing much greater security.
+Skein also has a number of optional features or alternate implementation modes which can allow for use as a ``a PRNG, a stream cipher, a key derivation function, authentication without the overhead of HMAC''\cite{SkeinSpeed}.
+It also has an optional hash-tree mode for increasing parallel execution speed. 
 
 
 \section*{Implementation}
@@ -83,22 +88,36 @@ ECHO runs 8 rounds, each round consisting of 2 AES rounds.  Additionally, it use
 \subsection*{Echo}
 
 As part of the submissions materials to the NIST competition the ECHO team submitted a 32 bit optimized version, a 64-bit optimized version and a reference implementation.  
-We chose to base our OpenCL implementation on the reference implementation, figuring that it would be the most likely to work with little modification.
+We chose to base our OpenCL implementation on the reference implementation, hoping that it would be the most likely to work with little modification.
+As it turned out the Echo function required a good deal of work to get to work.
+We began the debugging process by flattening all the functions into the kernel to avoid any issues with pointer passing causing data to not be written back to the global buffers.
+After having done this however, we still did not have a functional hash function - at least it was functional on the cpu but not the GPU.  
+We at first did not have any idea how to resolve this issue - since it is very difficult to debug code that cannot contain any print statements and cannot write out to a file. 
+Eventually, we began debugging by setting the return value of the hash to the memory that we wanted to look at, and began comparing the results from code that ran on teh CPU to the same code running on the GPU.
+By doing this we found a number of small errors in the code.
 
+Finally, the largest problem turned out to the be the accessible scope of the S-box.
+Since the S-box was declared in the same file as the kernel we had assumed that it would be in the scope of the kernel and it would be stored in the local memory of the graphics card.
+As it turned out by declaring the S-box outside of the actual kernel it was not instantiating the S-box in the local memory of the graphics card and instead when we tried to access the values of the S-box we only got 0's back.
+It was particularly difficult to spot the error because the program behaved differently on the CPU and GPU - on the CPU it accessed the S-boxes as normal, but the GPU was unable to do the same until they were moved into the kernel.
 \subsection*{Skein}
 
 
 \section*{Evaluation}
 
 \subsection*{Test Machine Specifications}
-Mac Pro 2x2.26 Xeon `Nehalem'.
+\begin{verbatim}
+Apple Mac Pro w/ 2 x 2.26 Xeon `Nehalem' core
 12 GB RAM
-ATI Radeon 4870 512MB
-NVIDIA GeForce 8800 512MB
+Primary: NVIDIA GeForce 8800 512MB
+Secondary: ATI Radeon 4870 512MB
+\end{verbatim}
 
 \subsection*{Methodology}
 Each algorithm was run 5 times on both the CPU and the NVIDIA GPU using data ranging in size from 1 byte ($2^0$) to 1,048,576 bytes ($2^{20}$) by powers of 2.
+By testing values throughout this range we are able to see both how much base overhead each function has, but also how well they will perform when overhead becomes irrelevant and they achieve a near constant processing rate.
 Skein was the only algorithm which ran properly on the ATI card so was tested by itself on that configuration.
+
 Additionally, CubeHash and Echo were the only algorithms which allowed arbitrary hash bit length, and were tested for speed vs. hash bit length for a fixed data size of 32 bytes.
 32 bytes was chosen because CubeHash and Echo performed nearly identically for a 32 byte data input using a 512 bit hash in the original tests.
 
@@ -108,11 +127,16 @@ Additionally, CubeHash and Echo were the only algorithms which allowed arbitrary
 ECHO was possibly the most troublesome of the algorithms to implement - never successfully running on the ATI card.  
 When we attempted to run ECHO on ATI card it would lock up the entire system requiring a hard shutdown. 
 However, when run with the NVIDIA 8800 it would run without issue.
-ECHO proved particularly difficult to code in OpenCL in particular, the S-boxes and multiplication constants caused a number of issues when running the code on a GPU in particular, while they would run without issue on the CPU.
+ECHO proved particularly difficult to code in OpenCL.
+
+Echo ran at a maximum of 1675.7 ns/byte on the CPU and 354162.5 ns/byte on the GPU.
+This translates to 741.5 clocks/byte on the CPU (at 2.26 Ghz) and 590,270 clocks/byte on the GPU (at 600 Mhz).
 
 \subsection*{Skein}
 Skein was by far the fastest algorithm tested.
 It was the only algorithm able to run the full 1,048,576 byte data set on the GPU - though it was only able to do this on the Radeon and not the GeForce card which the other algorithms ran better on.
+
+Skein ran at 7.8 clocks/byte (17.67 ns/byte) on the CPU, 27.8\% more than the claimed 6.1 clocks/byte and 6,626.1 clocks/byte (3975.65 ns/byte) on the GPU.
 
 \section*{Conclusions}
 
@@ -136,7 +160,8 @@ Additionally, a kernel run on a CPU can often perform in drastically different w
   \bibitem{ECHO} ``ECHO Hash Function.'' Available at \url{http://crypto.rd.francetelecom.com/echo/}.
   \bibitem{Harrison} Owen Harrison and John Waldron. ``AES Encryption Implementation and Analysis on Commodity Graphics Processing Units.'' Available at \url{https://www.cs.tcd.ie/~harrisoo/publications/AES_On_GPU.pdf}.
   \bibitem{CodeBook} ``Block cipher modes of operation'' Available at \url{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}.
-  \bibitem{Manavski}
+  \bibitem{Manavski} ``CUDA COMPATIBLE GPU AS AN EFFICIENT HARDWARE ACCELERATOR FOR AES CRYPTOGRAPHY.'' Available at \url{http://www.manavski.com/downloads/PID505889.pdf}
+  \bibitem{SkeinSpeed} ``The Skein Hash Function Family.'' Available at \url{http://www.schneier.com/skein.html}
 \end{thebibliography}
 
 \end{document}
