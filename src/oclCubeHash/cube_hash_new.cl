@@ -1,5 +1,5 @@
-#define CUBEHASH_ROUNDS 8
-#define CUBEHASH_BLOCKBYTES 1
+#define CUBEHASH_ROUNDS 16
+#define CUBEHASH_BLOCKBYTES 32
 #define ROTATE(a,b) (((a) << (b)) | ((a) >> (32 - b)))
 
 static void transform(__global uint *x)

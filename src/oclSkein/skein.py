@@ -3,7 +3,6 @@
 import pyopencl as cl
 import numpy as np
 import sys
-import time
 
 src   = open('skein_new.cl', 'r').read()
 ctx   = cl.Context(dev_type=cl.device_type.CPU)

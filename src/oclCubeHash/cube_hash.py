@@ -9,6 +9,13 @@ ctx   = cl.Context(dev_type=cl.device_type.GPU)
 queue = cl.CommandQueue(ctx, properties=cl.command_queue_properties.PROFILING_ENABLE)
 prg   = cl.Program(ctx, src).build()
 
+interval=64
+maxi=8192
+runs=5
+datas=[]
+for i in range(0,runs,1):
+  datas.append([])
+
 hashbitlen      = 512
 hashval         = np.empty(hashbitlen/8, dtype=np.uint8)
 
@@ -24,23 +31,32 @@ databitlen_buf  = cl.Buffer(ctx, cl.mem_flags.READ_ONLY | cl.mem_flags.COPY_HOST
 pos_buf         = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.ALLOC_HOST_PTR, size=4)
 x_buf           = cl.Buffer(ctx, cl.mem_flags.READ_WRITE | cl.mem_flags.ALLOC_HOST_PTR, size=4*32)
 
-for i in range(0, 1024+32, 32):
-  events  = []
-  datalen = 0
+for k in range(0, runs,1):
+  for i in range(0, maxi+interval, interval):
+    events  = []
+    datalen = 0
+  
+    events.append( prg.Init(queue, (1,), hashbitlen_buf, pos_buf, x_buf) )
+  
+    for j in range(0, i, 32):
+      datalen += databitlen / 8
+      events.append( prg.Update(queue, (1,), pos_buf, x_buf, data_buf, databitlen_buf) )
+  
+    events.append( prg.Final(queue, (1,), hashbitlen_buf, pos_buf, x_buf, hashval_buf) )
+  
+    events[-1].wait()
+    cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
 
-  events.append( prg.Init(queue, (1,), hashbitlen_buf, pos_buf, x_buf) )
+    datas[k].append(sum(evt.profile.end - evt.profile.start for evt in events))
 
-  for j in range(0, i, 32):
-    datalen += databitlen / 8
-    events.append( prg.Update(queue, (1,), pos_buf, x_buf, data_buf, databitlen_buf) )
+for i in range(0, (maxi+interval)/interval, 1):
+  time=0
+  for j in range(0, runs, 1):
+    time+=datas[j][i]
+  print "%d\t%lu" % (i*interval, time/runs)
 
-  events.append( prg.Final(queue, (1,), hashbitlen_buf, pos_buf, x_buf, hashval_buf) )
-
-  events[-1].wait()
-  cl.enqueue_read_buffer(queue, hashval_buf, hashval).wait()
-
-  hashval_hex = ""
-  for i in xrange(0, hashval.size):
-    hashval_hex += "%02x" % hashval[i]
-
-  print "%d\t%lu\t%s" % (datalen, sum(evt.profile.end - evt.profile.start for evt in events), hashval_hex)
+    # hashval_hex = ""
+    # for i in xrange(0, hashval.size):
+    #       hashval_hex += "%02x" % hashval[i]
+    # 
+    #     print "%d\t%lu\t%s" % (datalen, sum(evt.profile.end - evt.profile.start for evt in events), hashval_hex)
